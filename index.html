@@ -578,33 +578,12 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
 // ── SUPABASE CONFIG ──────────────────────────────────────────────────────────
-// PASTE your Supabase project URL and anon key directly here:
+// Paste your Supabase project URL and anon key here:
 const SUPABASE_URL = window.SUPABASE_URL || 'https://hxrmmpzrfmtqumhfnxxk.supabase.co';
 const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'sb_publishable_wHjpxKBhbIglsdhxwf8Q9g_MbtTAGCz';
 
-// DO NOT rename this variable — window.supabase is the CDN library
 const { createClient } = window.supabase;
-const db = (SUPABASE_URL && SUPABASE_URL !== 'YOUR_SUPABASE_URL')
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
-
-const isConfigured = !!db;
-
-// ── DEMO DATA (used when Supabase not configured) ────────────────────────────
-const DEMO_TAXIS = [
-  { id: '1', plate: 'UAX 123B', route: 'Mukono–Kampala', driver: 'John Ssempala', conductor: 'Moses Katende', trips_today: 4, lat: 0.3536, lng: 32.7562, status: 'active', maintenance: [] },
-  { id: '2', plate: 'UBF 456K', route: 'Mukono–Jinja', driver: 'David Wasswa', conductor: 'Peter Mwesige', trips_today: 6, lat: 0.3612, lng: 32.7490, status: 'active', maintenance: [{ id: 'm1', type: 'Engine Warning', note: 'Check engine light on', reported_at: '2025-03-12 08:30', resolved: false }] },
-  { id: '3', plate: 'UAT 789M', route: 'Mukono–Seeta', driver: 'Robert Kizito', conductor: 'Samuel Ouma', trips_today: 2, lat: 0.3480, lng: 32.7640, status: 'breakdown', maintenance: [{ id: 'm2', type: 'Breakdown', note: 'Front left tyre puncture', reported_at: '2025-03-12 10:15', resolved: false }] },
-  { id: '4', plate: 'UBK 321N', route: 'Mukono–Lugazi', driver: 'Emmanuel Nsubuga', conductor: 'Francis Opolot', trips_today: 5, lat: 0.3560, lng: 32.7530, status: 'active', maintenance: [] },
-];
-
-const DEMO_DRIVERS = [
-  { id: 'd1', username: 'john.s', password: 'pass123', name: 'John Ssempala', owner_id: 'owner1' },
-  { id: 'd2', username: 'david.w', password: 'pass123', name: 'David Wasswa', owner_id: 'owner1' },
-  { id: 'd3', username: 'robert.k', password: 'pass123', name: 'Robert Kizito', owner_id: 'owner1' },
-];
-
-const DEMO_OWNER = { id: 'owner1', email: 'owner@tracktransit.ug', password: 'owner123', name: 'Joseph Muwonge', fleet_name: 'Muwonge Taxis' };
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ── TOAST ────────────────────────────────────────────────────────────────────
 function ToastContainer({ toasts }) {
@@ -628,6 +607,104 @@ function useToast() {
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
   };
   return { toasts, show };
+}
+
+// ── INVITE LANDING (set password after email invite) ─────────────────────────
+function SetPasswordScreen({ onDone, toast }) {
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [name, setName] = useState('');
+  const [fleetName, setFleetName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [sessionReady, setSessionReady] = useState(false);
+
+  // Supabase puts the recovery/invite token in the URL hash — we must
+  // call getSession() which processes it and signs the user in automatically.
+  useEffect(() => {
+    const processToken = async () => {
+      // Give Supabase a moment to parse the hash
+      const { data, error: err } = await db.auth.getSession();
+      if (err || !data.session) {
+        setError('This invite link is invalid or has expired. Ask the owner to send a new invite.');
+      } else {
+        setSessionReady(true);
+      }
+    };
+    processToken();
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!name.trim()) { setError('Please enter your name.'); return; }
+    if (password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+    if (password !== confirm) { setError('Passwords do not match.'); return; }
+    setError(''); setLoading(true);
+    try {
+      // Update password
+      const { error: pwErr } = await db.auth.updateUser({ password });
+      if (pwErr) { setError(pwErr.message); setLoading(false); return; }
+
+      // Get the now-authenticated user
+      const { data: { user } } = await db.auth.getUser();
+      if (!user) { setError('Session lost. Please use the invite link again.'); setLoading(false); return; }
+
+      // Upsert their owner profile row
+      await db.from('owners').upsert({
+        id: user.id,
+        name: name.trim(),
+        fleet_name: fleetName.trim() || null,
+      });
+
+      toast.show('Account set up! Please sign in.', 'success');
+      // Clear the hash so normal login flow takes over
+      window.location.hash = '';
+      onDone();
+    } catch (e) {
+      setError('Unexpected error: ' + (e.message || 'Please try again.'));
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="login-page">
+      <div className="login-right">
+        <div className="login-card">
+          <div className="login-card-header">
+            <div className="login-role-badge">✉️ Invite</div>
+            <h2>Set Up Your Account</h2>
+            <p>You've been invited to Track Transit. Create your password to get started.</p>
+          </div>
+          {!sessionReady && !error && (
+            <div className="loading"><div className="spinner"></div></div>
+          )}
+          {error && <div className="alert alert-error">{error}</div>}
+          {sessionReady && (
+            <>
+              <div className="form-group">
+                <label className="form-label">Your Full Name *</label>
+                <input className="form-input" placeholder="e.g. Joseph Muwonge" value={name} onChange={e => setName(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Fleet / Business Name</label>
+                <input className="form-input" placeholder="e.g. Muwonge Taxis (optional)" value={fleetName} onChange={e => setFleetName(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Password *</label>
+                <input className="form-input" type="password" placeholder="At least 6 characters" value={password} onChange={e => setPassword(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Confirm Password *</label>
+                <input className="form-input" type="password" placeholder="Repeat your password" value={confirm} onChange={e => setConfirm(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSubmit()} />
+              </div>
+              <button className="btn btn-primary btn-full" onClick={handleSubmit} disabled={loading || !password || !confirm || !name}>
+                {loading ? 'Setting up...' : 'Create Account →'}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ── SPLASH / ROLE SELECT ─────────────────────────────────────────────────────
@@ -669,7 +746,6 @@ function OwnerLogin({ onBack, onLogin, toast }) {
       const { data, error: err } = await db.auth.signInWithPassword({ email, password });
       if (err) { setError(err.message); setLoading(false); return; }
       if (!data?.user) { setError('Login failed — no user returned. Please try again.'); setLoading(false); return; }
-      // Try to fetch owner profile, but don't block login if row doesn't exist yet
       let ownerName = data.user.user_metadata?.name || email.split('@')[0];
       let fleetName = '';
       try {
@@ -693,11 +769,6 @@ function OwnerLogin({ onBack, onLogin, toast }) {
             <h2>Owner Sign In</h2>
             <p>Access your fleet dashboard</p>
           </div>
-          {!isConfigured && (
-            <div className="alert alert-info" style={{marginBottom:16}}>
-              <strong>Demo mode</strong> — Use: owner@tracktransit.ug / owner123
-            </div>
-          )}
           {error && <div className="alert alert-error">{error}</div>}
           <div className="form-group">
             <label className="form-label">Email Address</label>
@@ -718,7 +789,7 @@ function OwnerLogin({ onBack, onLogin, toast }) {
 
 // ── DRIVER LOGIN ─────────────────────────────────────────────────────────────
 function DriverLogin({ onBack, onLogin, toast }) {
-  const [step, setStep] = useState(1); // 1: credentials, 2: otp
+  const [step, setStep] = useState(1);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
@@ -726,31 +797,67 @@ function DriverLogin({ onBack, onLogin, toast }) {
   const [loading, setLoading] = useState(false);
   const [driverData, setDriverData] = useState(null);
 
-  // In real app, OTP is sent to owner's device. In demo, we show it here.
-  const DEMO_OTP = '4827';
-
   const handleCredentials = async () => {
+    if (!username.trim() || !password.trim()) { setError('Please enter your username and password.'); return; }
     setError(''); setLoading(true);
-    await new Promise(r => setTimeout(r, 500));
-    const driver = DEMO_DRIVERS.find(d => d.username === username && d.password === password);
-    if (driver) {
+    try {
+      // Look up driver by username
+      const { data: drivers, error: err } = await db
+        .from('drivers')
+        .select('*')
+        .eq('username', username.trim())
+        .eq('active', true)
+        .limit(1);
+      if (err) { setError('Database error: ' + err.message); setLoading(false); return; }
+      if (!drivers || drivers.length === 0) { setError('Username not found.'); setLoading(false); return; }
+      const driver = drivers[0];
+
+      // Verify password — using the check_driver_password RPC defined in the schema
+      const { data: valid, error: pwErr } = await db.rpc('check_driver_password', {
+        p_driver_id: driver.id,
+        p_password: password
+      });
+      if (pwErr || !valid) { setError('Incorrect password.'); setLoading(false); return; }
+
+      // Generate OTP via RPC — stores it in otp_requests table, owner sees it on their dashboard
+      const { data: generatedOtp, error: otpErr } = await db.rpc('generate_otp', {
+        p_driver_id: driver.id,
+        p_owner_id: driver.owner_id
+      });
+      if (otpErr) { setError('Could not generate OTP: ' + otpErr.message); setLoading(false); return; }
+
       setDriverData(driver);
       setStep(2);
-      toast.show(`OTP sent to owner's device`, 'info');
-    } else {
-      setError('Invalid username or password. Demo: john.s / pass123');
+      toast.show("OTP sent — owner can see it in their dashboard", 'info');
+    } catch (e) {
+      setError('Unexpected error: ' + (e.message || 'Please try again.'));
     }
     setLoading(false);
   };
 
   const handleOTP = async () => {
+    if (otp.length !== 4) return;
     setError(''); setLoading(true);
-    await new Promise(r => setTimeout(r, 400));
-    if (otp === DEMO_OTP) {
+    try {
+      // Validate OTP against otp_requests table
+      const { data: rows, error: err } = await db
+        .from('otp_requests')
+        .select('*')
+        .eq('driver_id', driverData.id)
+        .eq('otp', otp)
+        .eq('used', false)
+        .gt('expires_at', new Date().toISOString())
+        .limit(1);
+      if (err) { setError('Error verifying OTP: ' + err.message); setLoading(false); return; }
+      if (!rows || rows.length === 0) { setError('Invalid or expired OTP. Ask the owner for a new code.'); setLoading(false); return; }
+
+      // Mark OTP used
+      await db.from('otp_requests').update({ used: true }).eq('id', rows[0].id);
+
       onLogin({ ...driverData, role: 'driver' });
       toast.show('Welcome, ' + driverData.name + '!', 'success');
-    } else {
-      setError(`Invalid OTP. (Demo OTP: ${DEMO_OTP})`);
+    } catch (e) {
+      setError('Unexpected error: ' + (e.message || 'Please try again.'));
     }
     setLoading(false);
   };
@@ -758,16 +865,13 @@ function DriverLogin({ onBack, onLogin, toast }) {
   return (
     <div className="login-page">
       <div className="login-right">
-        <button className="login-back" onClick={step === 2 ? () => setStep(1) : onBack}>← Back</button>
+        <button className="login-back" onClick={step === 2 ? () => { setStep(1); setOtp(''); setError(''); } : onBack}>← Back</button>
         <div className="login-card">
           <div className="login-card-header">
             <div className="login-role-badge">🚗 Driver</div>
             <h2>{step === 1 ? 'Driver Sign In' : 'Verify OTP'}</h2>
-            <p>{step === 1 ? 'Enter your credentials to continue' : 'Enter the OTP sent to the fleet owner'}</p>
+            <p>{step === 1 ? 'Enter your credentials to continue' : 'Enter the OTP shown on the owners dashboard'}</p>
           </div>
-          {!isConfigured && step === 1 && (
-            <div className="alert alert-info">Demo: john.s / pass123</div>
-          )}
           {error && <div className="alert alert-error">{error}</div>}
           {step === 1 ? (
             <>
@@ -788,14 +892,13 @@ function DriverLogin({ onBack, onLogin, toast }) {
               <div className="otp-info-card">
                 <div className="otp-info-icon">📱</div>
                 <div className="otp-info-text">
-                  <h4>Check the owner's device</h4>
-                  <p>A 4-digit OTP was sent to the fleet owner's phone</p>
+                  <h4>Check the owner's dashboard</h4>
+                  <p>A 4-digit OTP is now visible on the owner's screen under "Pending OTPs"</p>
                 </div>
               </div>
-              {!isConfigured && <div className="alert alert-info">Demo OTP: <strong>{DEMO_OTP}</strong></div>}
               <div className="form-group">
                 <label className="form-label">Enter OTP</label>
-                <input className="form-input otp" maxLength={4} placeholder="0000" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/,'').substring(0,4))} onKeyDown={e => e.key === 'Enter' && handleOTP()} />
+                <input className="form-input otp" maxLength={4} placeholder="0000" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g,'').substring(0,4))} onKeyDown={e => e.key === 'Enter' && handleOTP()} />
               </div>
               <button className="btn btn-green btn-full" onClick={handleOTP} disabled={loading || otp.length !== 4}>
                 {loading ? 'Verifying...' : 'Verify & Enter'}
@@ -810,7 +913,6 @@ function DriverLogin({ onBack, onLogin, toast }) {
 
 // ── OWNER MAP ─────────────────────────────────────────────────────────────────
 function OwnerMap({ taxis }) {
-  const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
 
@@ -831,6 +933,7 @@ function OwnerMap({ taxis }) {
     markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
     taxis.forEach(taxi => {
+      if (!taxi.lat || !taxi.lng) return;
       const statusColor = taxi.status === 'active' ? '#2E7D32' : taxi.status === 'breakdown' ? '#C62828' : '#E65100';
       const icon = L.divIcon({
         className: '',
@@ -842,16 +945,16 @@ function OwnerMap({ taxis }) {
         <div class="taxi-popup-header">
           <div>
             <h4>${taxi.plate}</h4>
-            <small>${taxi.route}</small>
+            <small>${taxi.route || ''}</small>
           </div>
-          <span style="background:rgba(255,255,255,0.2);padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">${taxi.status.toUpperCase()}</span>
+          <span style="background:rgba(255,255,255,0.2);padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">${(taxi.status||'').toUpperCase()}</span>
         </div>
         <div class="taxi-popup-body">
           <div class="taxi-popup-row"><label>Driver</label><span>${taxi.driver || '—'}</span></div>
           <div class="taxi-popup-row"><label>Conductor</label><span>${taxi.conductor || '—'}</span></div>
-          <div class="taxi-popup-row"><label>Trips Today</label><span style="color:var(--blue);font-weight:700;">${taxi.trips_today}</span></div>
+          <div class="taxi-popup-row"><label>Trips Today</label><span style="color:var(--blue);font-weight:700;">${taxi.trips_today || 0}</span></div>
           <div class="taxi-popup-row"><label>Open Issues</label><span style="color:${mCount>0?'#C62828':'#2E7D32'};font-weight:700;">${mCount > 0 ? mCount + ' issue(s)' : 'None ✓'}</span></div>
-          ${mCount > 0 ? `<div style="margin-top:8px;padding:8px;background:#FFF3E0;border-radius:6px;font-size:11px;color:#BF360C;">⚠ ${taxi.maintenance.filter(m=>!m.resolved)[0]?.type}: ${taxi.maintenance.filter(m=>!m.resolved)[0]?.note}</div>` : ''}
+          ${mCount > 0 ? `<div style="margin-top:8px;padding:8px;background:#FFF3E0;border-radius:6px;font-size:11px;color:#BF360C;">⚠ ${(taxi.maintenance||[]).filter(m=>!m.resolved)[0]?.type}: ${(taxi.maintenance||[]).filter(m=>!m.resolved)[0]?.note}</div>` : ''}
         </div>
       `;
       const marker = L.marker([taxi.lat, taxi.lng], { icon }).addTo(map);
@@ -867,7 +970,6 @@ function OwnerMap({ taxis }) {
 function TaxiModal({ taxi, onClose, onSave }) {
   const [form, setForm] = useState(taxi || { plate: '', route: '', driver: '', conductor: '', status: 'inactive' });
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }));
-
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
@@ -913,7 +1015,6 @@ function TaxiModal({ taxi, onClose, onSave }) {
   );
 }
 
-// ── DELETE CONFIRM MODAL ──────────────────────────────────────────────────────
 function DeleteModal({ taxi, onClose, onConfirm }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -924,7 +1025,7 @@ function DeleteModal({ taxi, onClose, onConfirm }) {
         </div>
         <div className="modal-body">
           <p style={{fontSize:'0.9rem',color:'var(--gray-700)'}}>
-            Are you sure you want to remove <strong>{taxi.plate}</strong> from your fleet? This action cannot be undone.
+            Are you sure you want to remove <strong>{taxi.plate}</strong> from your fleet? This cannot be undone.
           </p>
         </div>
         <div className="modal-footer">
@@ -941,6 +1042,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
   const [page, setPage] = useState('map');
   const [taxis, setTaxis] = useState([]);
   const [loadingTaxis, setLoadingTaxis] = useState(true);
+  const [pendingOtps, setPendingOtps] = useState([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editTaxi, setEditTaxi] = useState(null);
@@ -954,13 +1056,30 @@ function OwnerDashboard({ user, onLogout, toast }) {
         .select('*, maintenance(*)')
         .eq('owner_id', user.id)
         .order('created_at', { ascending: true });
-      if (error) { toast.show('Error loading taxis: ' + error.message, 'error'); }
-      else { setTaxis(data || []); }
+      if (error) toast.show('Error loading taxis: ' + error.message, 'error');
+      else setTaxis(data || []);
     } catch (e) { toast.show('Failed to load taxis', 'error'); }
     setLoadingTaxis(false);
   }, [user.id]);
 
-  useEffect(() => { loadTaxis(); }, [loadTaxis]);
+  const loadPendingOtps = useCallback(async () => {
+    const { data } = await db
+      .from('otp_requests')
+      .select('*, drivers(name, username)')
+      .eq('owner_id', user.id)
+      .eq('used', false)
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false });
+    setPendingOtps(data || []);
+  }, [user.id]);
+
+  useEffect(() => {
+    loadTaxis();
+    loadPendingOtps();
+    // Poll for new OTPs every 15s
+    const interval = setInterval(loadPendingOtps, 15000);
+    return () => clearInterval(interval);
+  }, [loadTaxis, loadPendingOtps]);
 
   const activeTaxis = taxis.filter(t => t.status === 'active').length;
   const breakdowns = taxis.filter(t => t.status === 'breakdown').length;
@@ -980,12 +1099,12 @@ function OwnerDashboard({ user, onLogout, toast }) {
         conductor: form.conductor, status: form.status
       }).eq('id', editTaxi.id);
       if (error) { toast.show('Error updating taxi: ' + error.message, 'error'); return; }
-      toast.show('Taxi updated successfully', 'success');
+      toast.show('Taxi updated', 'success');
     } else {
       const { error } = await db.from('taxis').insert({
         owner_id: user.id, plate: form.plate, route: form.route,
         driver: form.driver, conductor: form.conductor, status: form.status,
-        trips_today: 0, lat: 0.3536 + (Math.random()-0.5)*0.02, lng: 32.7562 + (Math.random()-0.5)*0.02
+        trips_today: 0, lat: 0.3536, lng: 32.7562
       });
       if (error) { toast.show('Error adding taxi: ' + error.message, 'error'); return; }
       toast.show('Taxi added to fleet', 'success');
@@ -997,7 +1116,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
   const handleDelete = async () => {
     const { error } = await db.from('taxis').delete().eq('id', deleteTaxi.id);
     if (error) { toast.show('Error removing taxi: ' + error.message, 'error'); return; }
-    toast.show('Taxi removed from fleet', 'info');
+    toast.show('Taxi removed', 'info');
     setDeleteTaxi(null);
     loadTaxis();
   };
@@ -1021,9 +1140,13 @@ function OwnerDashboard({ user, onLogout, toast }) {
             ['map', '🗺️', 'Live Map'],
             ['taxis', '🚕', 'My Taxis'],
             ['maintenance', '🔧', 'Maintenance'],
+            ['otps', '🔑', 'Pending OTPs'],
           ].map(([id, icon, label]) => (
-            <button key={id} className={`sidebar-item ${page === id ? 'active' : ''}`} onClick={() => setPage(id)}>
+            <button key={id} className={`sidebar-item ${page === id ? 'active' : ''}`} onClick={() => { setPage(id); if (id === 'otps') loadPendingOtps(); }}>
               <span className="sidebar-icon">{icon}</span> {label}
+              {id === 'otps' && pendingOtps.length > 0 && (
+                <span style={{marginLeft:'auto',background:'var(--orange)',color:'white',borderRadius:'10px',padding:'1px 7px',fontSize:'0.7rem',fontWeight:700}}>{pendingOtps.length}</span>
+              )}
             </button>
           ))}
         </nav>
@@ -1031,8 +1154,8 @@ function OwnerDashboard({ user, onLogout, toast }) {
           <div className="sidebar-user">
             <div className="sidebar-avatar">{(user.name||'O')[0].toUpperCase()}</div>
             <div className="sidebar-user-info">
-              <div className="sidebar-user-name">{user.name || user.fleet_name || 'Fleet Owner'}</div>
-              <div className="sidebar-user-role">Fleet Owner</div>
+              <div className="sidebar-user-name">{user.name || 'Fleet Owner'}</div>
+              <div className="sidebar-user-role">{user.fleet_name || 'Fleet Owner'}</div>
             </div>
           </div>
           <button className="btn btn-ghost btn-full btn-sm" onClick={onLogout}>Sign Out</button>
@@ -1045,26 +1168,16 @@ function OwnerDashboard({ user, onLogout, toast }) {
             {page === 'map' && 'Live Fleet Map'}
             {page === 'taxis' && 'My Taxis'}
             {page === 'maintenance' && 'Maintenance Reports'}
+            {page === 'otps' && 'Pending Driver OTPs'}
           </div>
           <div className="topbar-right">
             <span className="topbar-badge badge-green">🟢 {activeTaxis} Active</span>
             {breakdowns > 0 && <span className="topbar-badge badge-red">🔴 {breakdowns} Breakdown</span>}
+            {pendingOtps.length > 0 && <span className="topbar-badge badge-orange">🔑 {pendingOtps.length} OTP</span>}
           </div>
         </div>
 
         <div className="page">
-          {!isConfigured && (
-            <div className="config-banner">
-              <h4>⚙️ Demo Mode – Connect Supabase to go live</h4>
-              <p>
-                1. Create a free project at <strong>supabase.com</strong><br/>
-                2. Run the schema in <code>supabase-schema.sql</code><br/>
-                3. Set <code>window.SUPABASE_URL</code> and <code>window.SUPABASE_ANON_KEY</code> in your <code>netlify.toml</code> env vars<br/>
-                4. Real-time GPS tracking will then be live!
-              </p>
-            </div>
-          )}
-
           {loadingTaxis && <div className="loading"><div className="spinner"></div></div>}
 
           {/* STATS */}
@@ -1096,9 +1209,16 @@ function OwnerDashboard({ user, onLogout, toast }) {
             <div className="map-card">
               <div className="map-card-header">
                 <h3>Fleet Locations — Mukono Area</h3>
-                <span style={{fontSize:'0.78rem',color:'var(--gray-500)'}}>Tap a taxi to see details</span>
+                <span style={{fontSize:'0.78rem',color:'var(--gray-500)'}}>Tap a taxi marker to see details</span>
               </div>
-              <OwnerMap taxis={taxis} />
+              {taxis.length === 0 && !loadingTaxis ? (
+                <div className="empty-state" style={{padding:'60px 20px'}}>
+                  <div className="empty-state-icon">🗺️</div>
+                  <p>No taxis in your fleet yet. Add one from the My Taxis tab.</p>
+                </div>
+              ) : (
+                <OwnerMap taxis={taxis} />
+              )}
             </div>
           )}
 
@@ -1108,7 +1228,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
               <div className="table-card-header">
                 <h3>Fleet ({taxis.length})</h3>
                 <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
-                  <input className="table-search" placeholder="Search by plate, route..." value={search} onChange={e => setSearch(e.target.value)} />
+                  <input className="table-search" placeholder="Search plate, route, driver…" value={search} onChange={e => setSearch(e.target.value)} />
                   <button className="btn btn-primary btn-sm" onClick={() => { setEditTaxi(null); setShowModal(true); }}>+ Add Taxi</button>
                 </div>
               </div>
@@ -1121,10 +1241,10 @@ function OwnerDashboard({ user, onLogout, toast }) {
                     {filtered.map(taxi => (
                       <tr key={taxi.id}>
                         <td><strong style={{fontFamily:'Syne',fontSize:'0.9rem'}}>{taxi.plate}</strong></td>
-                        <td>{taxi.route}</td>
+                        <td>{taxi.route || '—'}</td>
                         <td>{taxi.driver || <span style={{color:'var(--gray-400)'}}>—</span>}</td>
                         <td>{taxi.conductor || <span style={{color:'var(--gray-400)'}}>—</span>}</td>
-                        <td><strong style={{color:'var(--blue)'}}>{taxi.trips_today}</strong></td>
+                        <td><strong style={{color:'var(--blue)'}}>{taxi.trips_today || 0}</strong></td>
                         <td>{statusBadge(taxi.status)}</td>
                         <td>
                           <div className="td-actions">
@@ -1135,7 +1255,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
                       </tr>
                     ))}
                     {filtered.length === 0 && (
-                      <tr><td colSpan={7}><div className="empty-state"><div className="empty-state-icon">🔍</div><p>No taxis found</p></div></td></tr>
+                      <tr><td colSpan={7}><div className="empty-state"><div className="empty-state-icon">{taxis.length === 0 ? '🚕' : '🔍'}</div><p>{taxis.length === 0 ? 'No taxis yet. Click + Add Taxi to get started.' : 'No taxis match your search.'}</p></div></td></tr>
                     )}
                   </tbody>
                 </table>
@@ -1151,7 +1271,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
                 <span className="topbar-badge badge-orange">{openIssues} Open</span>
               </div>
               <div style={{padding:'8px 0'}}>
-                {taxis.flatMap(taxi => (taxi.maintenance || []).map(m => ({ ...m, plate: taxi.plate, route: taxi.route }))).length === 0 ? (
+                {taxis.flatMap(taxi => (taxi.maintenance || []).map(m => ({ ...m, plate: taxi.plate, route: taxi.route, taxi_id: taxi.id }))).length === 0 ? (
                   <div className="empty-state"><div className="empty-state-icon">✅</div><p>No maintenance reports. All taxis are running fine!</p></div>
                 ) : (
                   <table>
@@ -1162,7 +1282,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
                           <td><strong style={{fontFamily:'Syne'}}>{taxi.plate}</strong><br/><small style={{color:'var(--gray-400)'}}>{taxi.route}</small></td>
                           <td><span className="topbar-badge badge-orange">{m.type}</span></td>
                           <td style={{maxWidth:200}}>{m.note}</td>
-                          <td style={{color:'var(--gray-500)',fontSize:'0.8rem'}}>{m.reported_at}</td>
+                          <td style={{color:'var(--gray-500)',fontSize:'0.8rem'}}>{m.reported_at ? new Date(m.reported_at).toLocaleString() : '—'}</td>
                           <td>{m.resolved ? <span className="topbar-badge badge-green">Resolved</span> : <span className="topbar-badge badge-red">Open</span>}</td>
                           <td>
                             {!m.resolved && (
@@ -1171,7 +1291,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
                                   .update({ resolved: true, resolved_at: new Date().toISOString() })
                                   .eq('id', m.id);
                                 if (error) { toast.show('Error: ' + error.message, 'error'); return; }
-                                toast.show('Issue marked as resolved', 'success');
+                                toast.show('Marked as resolved', 'success');
                                 loadTaxis();
                               }}>Resolve</button>
                             )}
@@ -1182,6 +1302,42 @@ function OwnerDashboard({ user, onLogout, toast }) {
                   </table>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* PENDING OTPs PAGE */}
+          {page === 'otps' && (
+            <div className="table-card">
+              <div className="table-card-header">
+                <h3>Pending Driver OTPs</h3>
+                <button className="btn btn-outline btn-sm" onClick={loadPendingOtps}>↻ Refresh</button>
+              </div>
+              {pendingOtps.length === 0 ? (
+                <div className="empty-state"><div className="empty-state-icon">🔑</div><p>No pending OTPs right now. When a driver logs in, their OTP will appear here.</p></div>
+              ) : (
+                <table>
+                  <thead><tr><th>Driver</th><th>Username</th><th>OTP Code</th><th>Expires</th><th>Action</th></tr></thead>
+                  <tbody>
+                    {pendingOtps.map(otp => (
+                      <tr key={otp.id}>
+                        <td><strong>{otp.drivers?.name || '—'}</strong></td>
+                        <td style={{color:'var(--gray-500)'}}>{otp.drivers?.username || '—'}</td>
+                        <td>
+                          <span style={{fontFamily:'Syne',fontSize:'1.4rem',fontWeight:800,letterSpacing:'6px',color:'var(--blue)'}}>{otp.otp}</span>
+                        </td>
+                        <td style={{fontSize:'0.8rem',color:'var(--gray-500)'}}>{new Date(otp.expires_at).toLocaleTimeString()}</td>
+                        <td>
+                          <button className="btn btn-ghost btn-sm" onClick={async () => {
+                            await db.from('otp_requests').update({ used: true }).eq('id', otp.id);
+                            loadPendingOtps();
+                            toast.show('OTP dismissed', 'info');
+                          }}>Dismiss</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
         </div>
@@ -1195,6 +1351,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
 
 // ── DRIVER DASHBOARD ─────────────────────────────────────────────────────────
 function DriverDashboard({ user, onLogout, toast }) {
+  const [taxis, setTaxis] = useState([]);
   const [selectedTaxi, setSelectedTaxi] = useState('');
   const [conductor, setConductor] = useState('');
   const [tripsToday, setTripsToday] = useState(0);
@@ -1204,16 +1361,47 @@ function DriverDashboard({ user, onLogout, toast }) {
   const [faultType, setFaultType] = useState('');
   const [faultNote, setFaultNote] = useState('');
   const [reports, setReports] = useState([]);
+  const [shiftSaved, setShiftSaved] = useState(false);
   const watchIdRef = useRef(null);
 
-  const taxis = DEMO_TAXIS;
-  const myTaxi = taxis.find(t => t.id === selectedTaxi);
+  // Load taxis belonging to this driver's owner
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await db.from('taxis').select('id, plate, route').eq('owner_id', user.owner_id).order('plate');
+      setTaxis(data || []);
+    };
+    load();
+    // Load today's trips for this driver
+    const loadTrips = async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const { count } = await db.from('trips').select('id', { count: 'exact', head: true })
+        .eq('driver_id', user.id).eq('trip_date', today);
+      setTripsToday(count || 0);
+    };
+    loadTrips();
+  }, [user.id, user.owner_id]);
+
+  const saveShift = async () => {
+    if (!selectedTaxi) { toast.show('Please select a taxi first', 'error'); return; }
+    // Update taxi with current driver and conductor
+    await db.from('taxis').update({ driver: user.name, conductor: conductor || null, status: 'active' }).eq('id', selectedTaxi);
+    setShiftSaved(true);
+    toast.show('Shift started!', 'success');
+  };
 
   const startTracking = () => {
     if (!navigator.geolocation) { setLocationError('GPS not available on this device'); return; }
+    if (!selectedTaxi) { toast.show('Please select a taxi and save your shift first', 'error'); return; }
     setLocationError('');
     watchIdRef.current = navigator.geolocation.watchPosition(
-      (pos) => { setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: Math.round(pos.coords.accuracy) }); setTracking(true); },
+      async (pos) => {
+        const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+        setLocation({ lat, lng, acc: Math.round(accuracy) });
+        setTracking(true);
+        // Push to Supabase
+        await db.from('taxis').update({ lat, lng, last_seen: new Date().toISOString() }).eq('id', selectedTaxi);
+        await db.from('location_updates').insert({ taxi_id: selectedTaxi, driver_id: user.id, lat, lng, accuracy });
+      },
       (err) => { setLocationError('GPS error: ' + err.message); setTracking(false); },
       { enableHighAccuracy: true, maximumAge: 5000 }
     );
@@ -1227,10 +1415,29 @@ function DriverDashboard({ user, onLogout, toast }) {
     toast.show('GPS tracking stopped', 'info');
   };
 
-  const submitFault = () => {
-    if (!faultType || !faultNote.trim()) { toast.show('Select fault type and add notes', 'error'); return; }
-    const report = { id: Date.now(), type: faultType, note: faultNote, taxi: myTaxi?.plate || 'Unknown', time: new Date().toLocaleTimeString() };
-    setReports(prev => [report, ...prev]);
+  useEffect(() => () => { if (watchIdRef.current) navigator.geolocation.clearWatch(watchIdRef.current); }, []);
+
+  const logTrip = async () => {
+    if (!selectedTaxi) { toast.show('Please select a taxi first', 'error'); return; }
+    const { error } = await db.from('trips').insert({
+      taxi_id: selectedTaxi, driver_id: user.id, conductor: conductor || null
+    });
+    if (error) { toast.show('Error logging trip: ' + error.message, 'error'); return; }
+    // Increment counter on taxi row
+    await db.from('taxis').update({ trips_today: (tripsToday + 1) }).eq('id', selectedTaxi);
+    setTripsToday(n => n + 1);
+    toast.show('Trip logged!', 'success');
+  };
+
+  const submitFault = async () => {
+    if (!faultType || !faultNote.trim()) { toast.show('Select a fault type and add notes', 'error'); return; }
+    if (!selectedTaxi) { toast.show('Please select a taxi first', 'error'); return; }
+    const { error } = await db.from('maintenance').insert({
+      taxi_id: selectedTaxi, driver_id: user.id, type: faultType, note: faultNote
+    });
+    if (error) { toast.show('Error reporting fault: ' + error.message, 'error'); return; }
+    const myTaxi = taxis.find(t => t.id === selectedTaxi);
+    setReports(prev => [{ id: Date.now(), type: faultType, note: faultNote, plate: myTaxi?.plate || '—', time: new Date().toLocaleTimeString() }, ...prev]);
     setFaultType(''); setFaultNote('');
     toast.show('Fault reported to owner', 'success');
   };
@@ -1246,7 +1453,7 @@ function DriverDashboard({ user, onLogout, toast }) {
         </div>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
           <div style={{width:30,height:30,borderRadius:'50%',background:'rgba(255,255,255,0.2)',display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:700,fontSize:'0.8rem'}}>
-            {user.name[0]}
+            {(user.name||'D')[0]}
           </div>
           <button className="btn btn-ghost btn-sm" style={{color:'rgba(255,255,255,0.8)'}} onClick={onLogout}>Out</button>
         </div>
@@ -1258,15 +1465,18 @@ function DriverDashboard({ user, onLogout, toast }) {
           <h3>Current Shift</h3>
           <div className="form-group">
             <label className="form-label">Taxi You're Driving</label>
-            <select className="form-select" value={selectedTaxi} onChange={e => setSelectedTaxi(e.target.value)}>
+            <select className="form-select" value={selectedTaxi} onChange={e => { setSelectedTaxi(e.target.value); setShiftSaved(false); }}>
               <option value="">Select taxi…</option>
-              {taxis.map(t => <option key={t.id} value={t.id}>{t.plate} — {t.route}</option>)}
+              {taxis.map(t => <option key={t.id} value={t.id}>{t.plate}{t.route ? ` — ${t.route}` : ''}</option>)}
             </select>
           </div>
-          <div className="form-group" style={{marginBottom:0}}>
+          <div className="form-group">
             <label className="form-label">Conductor</label>
-            <input className="form-input" placeholder="Conductor's name" value={conductor} onChange={e => setConductor(e.target.value)} />
+            <input className="form-input" placeholder="Conductor's name" value={conductor} onChange={e => { setConductor(e.target.value); setShiftSaved(false); }} />
           </div>
+          <button className={`btn btn-full ${shiftSaved ? 'btn-green' : 'btn-primary'}`} onClick={saveShift} disabled={!selectedTaxi}>
+            {shiftSaved ? '✓ Shift Saved' : 'Save Shift Details'}
+          </button>
         </div>
 
         {/* Trip Counter */}
@@ -1275,11 +1485,8 @@ function DriverDashboard({ user, onLogout, toast }) {
           <div className="trip-count-display">{tripsToday}</div>
           <div className="trip-count-label">trips completed</div>
           <div className="trips-today-actions">
-            <button className="btn btn-green btn-full" onClick={() => { setTripsToday(n => n + 1); toast.show('Trip logged!', 'success'); }}>
+            <button className="btn btn-green btn-full" onClick={logTrip} disabled={!selectedTaxi}>
               + Log Trip
-            </button>
-            <button className="btn btn-ghost btn-sm" style={{color:'rgba(255,255,255,0.7)'}} onClick={() => tripsToday > 0 && setTripsToday(n => n - 1)}>
-              Undo
             </button>
           </div>
         </div>
@@ -1289,8 +1496,8 @@ function DriverDashboard({ user, onLogout, toast }) {
           <h3>GPS Location</h3>
           <div className="status-indicator">
             <div className={`status-dot ${tracking ? 'active' : 'inactive'}`}></div>
-            <span style={{fontSize:'0.875rem', fontWeight:600, color: tracking ? 'var(--green)' : 'var(--gray-500)'}}>
-              {tracking ? 'Sharing location' : 'Not tracking'}
+            <span style={{fontSize:'0.875rem',fontWeight:600,color: tracking ? 'var(--green)' : 'var(--gray-500)'}}>
+              {tracking ? 'Sharing location with owner' : 'Not tracking'}
             </span>
           </div>
           {location && (
@@ -1327,15 +1534,15 @@ function DriverDashboard({ user, onLogout, toast }) {
             <label className="form-label">Describe the Issue</label>
             <textarea className="form-textarea" placeholder="Describe the fault or breakdown in detail…" value={faultNote} onChange={e => setFaultNote(e.target.value)} />
           </div>
-          <button className="btn btn-orange btn-full" onClick={submitFault} disabled={!faultType || !faultNote.trim()}>
+          <button className="btn btn-orange btn-full" onClick={submitFault} disabled={!faultType || !faultNote.trim() || !selectedTaxi}>
             ⚠ Report to Owner
           </button>
         </div>
 
-        {/* My Reports */}
+        {/* My Reports This Session */}
         {reports.length > 0 && (
           <div className="driver-status-card">
-            <h3>My Reports Today</h3>
+            <h3>My Reports This Session</h3>
             <div className="maintenance-list">
               {reports.map(r => (
                 <div key={r.id} className="maintenance-item">
@@ -1343,14 +1550,13 @@ function DriverDashboard({ user, onLogout, toast }) {
                   <div>
                     <div className="maintenance-item-title">{r.type}</div>
                     <div style={{fontSize:'0.82rem',color:'var(--gray-700)',margin:'2px 0'}}>{r.note}</div>
-                    <div className="maintenance-item-meta">{r.taxi} · {r.time}</div>
+                    <div className="maintenance-item-meta">{r.plate} · {r.time}</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
         )}
-
         <div style={{height:24}} />
       </div>
     </div>
@@ -1359,24 +1565,50 @@ function DriverDashboard({ user, onLogout, toast }) {
 
 // ── ROOT APP ──────────────────────────────────────────────────────────────────
 function App() {
-  const [screen, setScreen] = useState('splash'); // splash | ownerLogin | driverLogin | ownerApp | driverApp
+  const [screen, setScreen] = useState('loading');
   const [user, setUser] = useState(null);
   const toast = useToast();
+
+  useEffect(() => {
+    // Check if this page load is an invite/recovery link (Supabase puts token in URL hash)
+    const hash = window.location.hash;
+    const isInvite = hash.includes('type=invite') || hash.includes('type=recovery') || hash.includes('access_token');
+    if (isInvite) { setScreen('setPassword'); return; }
+
+    // Check for an existing session (user was already logged in)
+    db.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        // Restore owner session
+        const u = session.user;
+        db.from('owners').select('name, fleet_name').eq('id', u.id).single().then(({ data: profile }) => {
+          setUser({ id: u.id, email: u.email, role: 'owner', name: profile?.name || u.email.split('@')[0], fleet_name: profile?.fleet_name || '' });
+          setScreen('ownerApp');
+        });
+      } else {
+        setScreen('splash');
+      }
+    });
+  }, []);
 
   const handleLogin = (userData) => {
     setUser(userData);
     setScreen(userData.role === 'owner' ? 'ownerApp' : 'driverApp');
   };
 
-  const handleLogout = () => {
-    if (isConfigured) db?.auth.signOut();
+  const handleLogout = async () => {
+    await db.auth.signOut();
     setUser(null);
     setScreen('splash');
     toast.show('Signed out', 'info');
   };
 
+  if (screen === 'loading') {
+    return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#0D47A1'}}><div className="spinner" style={{borderTopColor:'white',borderColor:'rgba(255,255,255,0.3)'}}></div></div>;
+  }
+
   return (
     <>
+      {screen === 'setPassword' && <SetPasswordScreen onDone={() => setScreen('ownerLogin')} toast={toast} />}
       {screen === 'splash' && <SplashScreen onSelect={role => setScreen(role === 'owner' ? 'ownerLogin' : 'driverLogin')} />}
       {screen === 'ownerLogin' && <OwnerLogin onBack={() => setScreen('splash')} onLogin={handleLogin} toast={toast} />}
       {screen === 'driverLogin' && <DriverLogin onBack={() => setScreen('splash')} onLogin={handleLogin} toast={toast} />}
