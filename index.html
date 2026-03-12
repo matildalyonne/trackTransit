@@ -581,10 +581,9 @@ const { useState, useEffect, useRef, useCallback } = React;
 // Replace with your Supabase project URL and anon key
 const SUPABASE_URL = window.SUPABASE_URL || 'https://hxrmmpzrfmtqumhfnxxk.supabase.co';
 const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'sb_secret_WDAD1m6d92T_Lb_HgPsxJA_47U_fDJk';
-
 let supabase = null;
 try {
-  if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+  if (SUPABASE_URL !== 'https://hxrmmpzrfmtqumhfnxxk.supabase.co') {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
 } catch(e) {}
@@ -592,11 +591,20 @@ try {
 const isConfigured = !!supabase;
 
 // ── DEMO DATA (used when Supabase not configured) ────────────────────────────
-const DEMO_TAXIS = [];
+const DEMO_TAXIS = [
+  { id: '1', plate: 'UAX 123B', route: 'Mukono–Kampala', driver: 'John Ssempala', conductor: 'Moses Katende', trips_today: 4, lat: 0.3536, lng: 32.7562, status: 'active', maintenance: [] },
+  { id: '2', plate: 'UBF 456K', route: 'Mukono–Jinja', driver: 'David Wasswa', conductor: 'Peter Mwesige', trips_today: 6, lat: 0.3612, lng: 32.7490, status: 'active', maintenance: [{ id: 'm1', type: 'Engine Warning', note: 'Check engine light on', reported_at: '2025-03-12 08:30', resolved: false }] },
+  { id: '3', plate: 'UAT 789M', route: 'Mukono–Seeta', driver: 'Robert Kizito', conductor: 'Samuel Ouma', trips_today: 2, lat: 0.3480, lng: 32.7640, status: 'breakdown', maintenance: [{ id: 'm2', type: 'Breakdown', note: 'Front left tyre puncture', reported_at: '2025-03-12 10:15', resolved: false }] },
+  { id: '4', plate: 'UBK 321N', route: 'Mukono–Lugazi', driver: 'Emmanuel Nsubuga', conductor: 'Francis Opolot', trips_today: 5, lat: 0.3560, lng: 32.7530, status: 'active', maintenance: [] },
+];
 
-const DEMO_DRIVERS = [];
+const DEMO_DRIVERS = [
+  { id: 'd1', username: 'john.s', password: 'pass123', name: 'John Ssempala', owner_id: 'owner1' },
+  { id: 'd2', username: 'david.w', password: 'pass123', name: 'David Wasswa', owner_id: 'owner1' },
+  { id: 'd3', username: 'robert.k', password: 'pass123', name: 'Robert Kizito', owner_id: 'owner1' },
+];
 
-const DEMO_OWNER = null;
+const DEMO_OWNER = { id: 'owner1', email: 'owner@tracktransit.ug', password: 'owner123', name: 'Joseph Muwonge', fleet_name: 'Muwonge Taxis' };
 
 // ── TOAST ────────────────────────────────────────────────────────────────────
 function ToastContainer({ toasts }) {
@@ -655,20 +663,22 @@ function OwnerLogin({ onBack, onLogin, toast }) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    if (!email.trim() || !password.trim()) { setError('Please enter your email and password.'); return; }
     setError(''); setLoading(true);
-    await new Promise(r => setTimeout(r, 600));
-    if (isConfigured) {
+    try {
       const { data, error: err } = await supabase.auth.signInWithPassword({ email, password });
       if (err) { setError(err.message); setLoading(false); return; }
-      onLogin({ ...data.user, role: 'owner', name: data.user.user_metadata?.name || email.split('@')[0] });
-    } else {
-      // Demo mode
-      if (email === DEMO_OWNER.email && password === DEMO_OWNER.password) {
-        onLogin({ ...DEMO_OWNER, role: 'owner' });
-        toast.show('Logged in as demo owner', 'success');
-      } else {
-        setError('Demo credentials: owner@tracktransit.ug / owner123');
-      }
+      if (!data?.user) { setError('Login failed — no user returned. Please try again.'); setLoading(false); return; }
+      // Try to fetch owner profile, but don't block login if row doesn't exist yet
+      let ownerName = data.user.user_metadata?.name || email.split('@')[0];
+      let fleetName = '';
+      try {
+        const { data: profile } = await supabase.from('owners').select('name, fleet_name').eq('id', data.user.id).single();
+        if (profile) { ownerName = profile.name || ownerName; fleetName = profile.fleet_name || ''; }
+      } catch (_) {}
+      onLogin({ id: data.user.id, email: data.user.email, role: 'owner', name: ownerName, fleet_name: fleetName });
+    } catch (e) {
+      setError('Unexpected error: ' + (e.message || 'Please check your connection and try again.'));
     }
     setLoading(false);
   };
@@ -683,7 +693,11 @@ function OwnerLogin({ onBack, onLogin, toast }) {
             <h2>Owner Sign In</h2>
             <p>Access your fleet dashboard</p>
           </div>
-          
+          {!isConfigured && (
+            <div className="alert alert-info" style={{marginBottom:16}}>
+              <strong>Demo mode</strong> — Use: owner@tracktransit.ug / owner123
+            </div>
+          )}
           {error && <div className="alert alert-error">{error}</div>}
           <div className="form-group">
             <label className="form-label">Email Address</label>
@@ -713,7 +727,7 @@ function DriverLogin({ onBack, onLogin, toast }) {
   const [driverData, setDriverData] = useState(null);
 
   // In real app, OTP is sent to owner's device. In demo, we show it here.
-;
+  const DEMO_OTP = '4827';
 
   const handleCredentials = async () => {
     setError(''); setLoading(true);
@@ -751,7 +765,9 @@ function DriverLogin({ onBack, onLogin, toast }) {
             <h2>{step === 1 ? 'Driver Sign In' : 'Verify OTP'}</h2>
             <p>{step === 1 ? 'Enter your credentials to continue' : 'Enter the OTP sent to the fleet owner'}</p>
           </div>
-          
+          {!isConfigured && step === 1 && (
+            <div className="alert alert-info">Demo: john.s / pass123</div>
+          )}
           {error && <div className="alert alert-error">{error}</div>}
           {step === 1 ? (
             <>
@@ -776,7 +792,7 @@ function DriverLogin({ onBack, onLogin, toast }) {
                   <p>A 4-digit OTP was sent to the fleet owner's phone</p>
                 </div>
               </div>
-              
+              {!isConfigured && <div className="alert alert-info">Demo OTP: <strong>{DEMO_OTP}</strong></div>}
               <div className="form-group">
                 <label className="form-label">Enter OTP</label>
                 <input className="form-input otp" maxLength={4} placeholder="0000" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/,'').substring(0,4))} onKeyDown={e => e.key === 'Enter' && handleOTP()} />
@@ -923,35 +939,67 @@ function DeleteModal({ taxi, onClose, onConfirm }) {
 // ── OWNER DASHBOARD ──────────────────────────────────────────────────────────
 function OwnerDashboard({ user, onLogout, toast }) {
   const [page, setPage] = useState('map');
-  const [taxis, setTaxis] = useState(DEMO_TAXIS);
+  const [taxis, setTaxis] = useState([]);
+  const [loadingTaxis, setLoadingTaxis] = useState(true);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editTaxi, setEditTaxi] = useState(null);
   const [deleteTaxi, setDeleteTaxi] = useState(null);
 
+  const loadTaxis = useCallback(async () => {
+    setLoadingTaxis(true);
+    try {
+      const { data, error } = await supabase
+        .from('taxis')
+        .select('*, maintenance(*)')
+        .eq('owner_id', user.id)
+        .order('created_at', { ascending: true });
+      if (error) { toast.show('Error loading taxis: ' + error.message, 'error'); }
+      else { setTaxis(data || []); }
+    } catch (e) { toast.show('Failed to load taxis', 'error'); }
+    setLoadingTaxis(false);
+  }, [user.id]);
+
+  useEffect(() => { loadTaxis(); }, [loadTaxis]);
+
   const activeTaxis = taxis.filter(t => t.status === 'active').length;
   const breakdowns = taxis.filter(t => t.status === 'breakdown').length;
-  const totalTrips = taxis.reduce((s, t) => s + t.trips_today, 0);
+  const totalTrips = taxis.reduce((s, t) => s + (t.trips_today || 0), 0);
   const openIssues = taxis.reduce((s, t) => s + (t.maintenance || []).filter(m => !m.resolved).length, 0);
 
-  const filtered = taxis.filter(t => t.plate.toLowerCase().includes(search.toLowerCase()) || t.route.toLowerCase().includes(search.toLowerCase()) || (t.driver||'').toLowerCase().includes(search.toLowerCase()));
+  const filtered = taxis.filter(t =>
+    t.plate.toLowerCase().includes(search.toLowerCase()) ||
+    (t.route||'').toLowerCase().includes(search.toLowerCase()) ||
+    (t.driver||'').toLowerCase().includes(search.toLowerCase())
+  );
 
-  const handleSaveTaxi = (form) => {
+  const handleSaveTaxi = async (form) => {
     if (editTaxi) {
-      setTaxis(prev => prev.map(t => t.id === editTaxi.id ? { ...t, ...form } : t));
+      const { error } = await supabase.from('taxis').update({
+        plate: form.plate, route: form.route, driver: form.driver,
+        conductor: form.conductor, status: form.status
+      }).eq('id', editTaxi.id);
+      if (error) { toast.show('Error updating taxi: ' + error.message, 'error'); return; }
       toast.show('Taxi updated successfully', 'success');
     } else {
-      const newTaxi = { ...form, id: String(Date.now()), trips_today: 0, lat: 0.3536 + (Math.random()-0.5)*0.02, lng: 32.7562 + (Math.random()-0.5)*0.02, maintenance: [] };
-      setTaxis(prev => [...prev, newTaxi]);
+      const { error } = await supabase.from('taxis').insert({
+        owner_id: user.id, plate: form.plate, route: form.route,
+        driver: form.driver, conductor: form.conductor, status: form.status,
+        trips_today: 0, lat: 0.3536 + (Math.random()-0.5)*0.02, lng: 32.7562 + (Math.random()-0.5)*0.02
+      });
+      if (error) { toast.show('Error adding taxi: ' + error.message, 'error'); return; }
       toast.show('Taxi added to fleet', 'success');
     }
     setShowModal(false); setEditTaxi(null);
+    loadTaxis();
   };
 
-  const handleDelete = () => {
-    setTaxis(prev => prev.filter(t => t.id !== deleteTaxi.id));
+  const handleDelete = async () => {
+    const { error } = await supabase.from('taxis').delete().eq('id', deleteTaxi.id);
+    if (error) { toast.show('Error removing taxi: ' + error.message, 'error'); return; }
     toast.show('Taxi removed from fleet', 'info');
     setDeleteTaxi(null);
+    loadTaxis();
   };
 
   const statusBadge = (status) => {
@@ -1005,7 +1053,19 @@ function OwnerDashboard({ user, onLogout, toast }) {
         </div>
 
         <div className="page">
-        
+          {!isConfigured && (
+            <div className="config-banner">
+              <h4>⚙️ Demo Mode – Connect Supabase to go live</h4>
+              <p>
+                1. Create a free project at <strong>supabase.com</strong><br/>
+                2. Run the schema in <code>supabase-schema.sql</code><br/>
+                3. Set <code>window.SUPABASE_URL</code> and <code>window.SUPABASE_ANON_KEY</code> in your <code>netlify.toml</code> env vars<br/>
+                4. Real-time GPS tracking will then be live!
+              </p>
+            </div>
+          )}
+
+          {loadingTaxis && <div className="loading"><div className="spinner"></div></div>}
 
           {/* STATS */}
           <div className="stats-row">
@@ -1106,9 +1166,13 @@ function OwnerDashboard({ user, onLogout, toast }) {
                           <td>{m.resolved ? <span className="topbar-badge badge-green">Resolved</span> : <span className="topbar-badge badge-red">Open</span>}</td>
                           <td>
                             {!m.resolved && (
-                              <button className="btn btn-green btn-sm" onClick={() => {
-                                setTaxis(prev => prev.map(t => t.id === taxi.id ? { ...t, maintenance: t.maintenance.map(mi => mi.id === m.id ? {...mi, resolved: true} : mi) } : t));
+                              <button className="btn btn-green btn-sm" onClick={async () => {
+                                const { error } = await supabase.from('maintenance')
+                                  .update({ resolved: true, resolved_at: new Date().toISOString() })
+                                  .eq('id', m.id);
+                                if (error) { toast.show('Error: ' + error.message, 'error'); return; }
                                 toast.show('Issue marked as resolved', 'success');
+                                loadTaxis();
                               }}>Resolve</button>
                             )}
                           </td>
