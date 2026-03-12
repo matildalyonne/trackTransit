@@ -592,20 +592,11 @@ try {
 const isConfigured = !!supabase;
 
 // ── DEMO DATA (used when Supabase not configured) ────────────────────────────
-const DEMO_TAXIS = [
-  { id: '1', plate: 'UAX 123B', route: 'Mukono–Kampala', driver: 'John Ssempala', conductor: 'Moses Katende', trips_today: 4, lat: 0.3536, lng: 32.7562, status: 'active', maintenance: [] },
-  { id: '2', plate: 'UBF 456K', route: 'Mukono–Jinja', driver: 'David Wasswa', conductor: 'Peter Mwesige', trips_today: 6, lat: 0.3612, lng: 32.7490, status: 'active', maintenance: [{ id: 'm1', type: 'Engine Warning', note: 'Check engine light on', reported_at: '2025-03-12 08:30', resolved: false }] },
-  { id: '3', plate: 'UAT 789M', route: 'Mukono–Seeta', driver: 'Robert Kizito', conductor: 'Samuel Ouma', trips_today: 2, lat: 0.3480, lng: 32.7640, status: 'breakdown', maintenance: [{ id: 'm2', type: 'Breakdown', note: 'Front left tyre puncture', reported_at: '2025-03-12 10:15', resolved: false }] },
-  { id: '4', plate: 'UBK 321N', route: 'Mukono–Lugazi', driver: 'Emmanuel Nsubuga', conductor: 'Francis Opolot', trips_today: 5, lat: 0.3560, lng: 32.7530, status: 'active', maintenance: [] },
-];
+const DEMO_TAXIS = [];
 
-const DEMO_DRIVERS = [
-  { id: 'd1', username: 'john.s', password: 'pass123', name: 'John Ssempala', owner_id: 'owner1' },
-  { id: 'd2', username: 'david.w', password: 'pass123', name: 'David Wasswa', owner_id: 'owner1' },
-  { id: 'd3', username: 'robert.k', password: 'pass123', name: 'Robert Kizito', owner_id: 'owner1' },
-];
+const DEMO_DRIVERS = [];
 
-const DEMO_OWNER = { id: 'owner1', email: 'owner@tracktransit.ug', password: 'owner123', name: 'Joseph Muwonge', fleet_name: 'Muwonge Taxis' };
+const DEMO_OWNER = null;
 
 // ── TOAST ────────────────────────────────────────────────────────────────────
 function ToastContainer({ toasts }) {
@@ -692,11 +683,7 @@ function OwnerLogin({ onBack, onLogin, toast }) {
             <h2>Owner Sign In</h2>
             <p>Access your fleet dashboard</p>
           </div>
-          {!isConfigured && (
-            <div className="alert alert-info" style={{marginBottom:16}}>
-              <strong>Demo mode</strong> — Use: owner@tracktransit.ug / owner123
-            </div>
-          )}
+          
           {error && <div className="alert alert-error">{error}</div>}
           <div className="form-group">
             <label className="form-label">Email Address</label>
@@ -726,7 +713,7 @@ function DriverLogin({ onBack, onLogin, toast }) {
   const [driverData, setDriverData] = useState(null);
 
   // In real app, OTP is sent to owner's device. In demo, we show it here.
-  const DEMO_OTP = '4827';
+;
 
   const handleCredentials = async () => {
     setError(''); setLoading(true);
@@ -764,9 +751,7 @@ function DriverLogin({ onBack, onLogin, toast }) {
             <h2>{step === 1 ? 'Driver Sign In' : 'Verify OTP'}</h2>
             <p>{step === 1 ? 'Enter your credentials to continue' : 'Enter the OTP sent to the fleet owner'}</p>
           </div>
-          {!isConfigured && step === 1 && (
-            <div className="alert alert-info">Demo: john.s / pass123</div>
-          )}
+          
           {error && <div className="alert alert-error">{error}</div>}
           {step === 1 ? (
             <>
@@ -791,7 +776,7 @@ function DriverLogin({ onBack, onLogin, toast }) {
                   <p>A 4-digit OTP was sent to the fleet owner's phone</p>
                 </div>
               </div>
-              {!isConfigured && <div className="alert alert-info">Demo OTP: <strong>{DEMO_OTP}</strong></div>}
+              
               <div className="form-group">
                 <label className="form-label">Enter OTP</label>
                 <input className="form-input otp" maxLength={4} placeholder="0000" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/,'').substring(0,4))} onKeyDown={e => e.key === 'Enter' && handleOTP()} />
@@ -1020,17 +1005,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
         </div>
 
         <div className="page">
-          {!isConfigured && (
-            <div className="config-banner">
-              <h4>⚙️ Demo Mode – Connect Supabase to go live</h4>
-              <p>
-                1. Create a free project at <strong>supabase.com</strong><br/>
-                2. Run the schema in <code>supabase-schema.sql</code><br/>
-                3. Set <code>window.SUPABASE_URL</code> and <code>window.SUPABASE_ANON_KEY</code> in your <code>netlify.toml</code> env vars<br/>
-                4. Real-time GPS tracking will then be live!
-              </p>
-            </div>
-          )}
+        
 
           {/* STATS */}
           <div className="stats-row">
