@@ -578,17 +578,17 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
 // ── SUPABASE CONFIG ──────────────────────────────────────────────────────────
-// Replace with your Supabase project URL and anon key
+// PASTE your Supabase project URL and anon key directly here:
 const SUPABASE_URL = window.SUPABASE_URL || 'https://hxrmmpzrfmtqumhfnxxk.supabase.co';
 const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'sb_secret_WDAD1m6d92T_Lb_HgPsxJA_47U_fDJk';
-let supabase = null;
-try {
-  if (SUPABASE_URL !== 'https://hxrmmpzrfmtqumhfnxxk.supabase.co') {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-} catch(e) {}
 
-const isConfigured = !!supabase;
+// DO NOT rename this variable — window.supabase is the CDN library
+const { createClient } = window.supabase;
+const db = (SUPABASE_URL && SUPABASE_URL !== 'YOUR_SUPABASE_URL')
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+const isConfigured = !!db;
 
 // ── DEMO DATA (used when Supabase not configured) ────────────────────────────
 const DEMO_TAXIS = [
@@ -666,14 +666,14 @@ function OwnerLogin({ onBack, onLogin, toast }) {
     if (!email.trim() || !password.trim()) { setError('Please enter your email and password.'); return; }
     setError(''); setLoading(true);
     try {
-      const { data, error: err } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error: err } = await db.auth.signInWithPassword({ email, password });
       if (err) { setError(err.message); setLoading(false); return; }
       if (!data?.user) { setError('Login failed — no user returned. Please try again.'); setLoading(false); return; }
       // Try to fetch owner profile, but don't block login if row doesn't exist yet
       let ownerName = data.user.user_metadata?.name || email.split('@')[0];
       let fleetName = '';
       try {
-        const { data: profile } = await supabase.from('owners').select('name, fleet_name').eq('id', data.user.id).single();
+        const { data: profile } = await db.from('owners').select('name, fleet_name').eq('id', data.user.id).single();
         if (profile) { ownerName = profile.name || ownerName; fleetName = profile.fleet_name || ''; }
       } catch (_) {}
       onLogin({ id: data.user.id, email: data.user.email, role: 'owner', name: ownerName, fleet_name: fleetName });
@@ -949,7 +949,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
   const loadTaxis = useCallback(async () => {
     setLoadingTaxis(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('taxis')
         .select('*, maintenance(*)')
         .eq('owner_id', user.id)
@@ -975,14 +975,14 @@ function OwnerDashboard({ user, onLogout, toast }) {
 
   const handleSaveTaxi = async (form) => {
     if (editTaxi) {
-      const { error } = await supabase.from('taxis').update({
+      const { error } = await db.from('taxis').update({
         plate: form.plate, route: form.route, driver: form.driver,
         conductor: form.conductor, status: form.status
       }).eq('id', editTaxi.id);
       if (error) { toast.show('Error updating taxi: ' + error.message, 'error'); return; }
       toast.show('Taxi updated successfully', 'success');
     } else {
-      const { error } = await supabase.from('taxis').insert({
+      const { error } = await db.from('taxis').insert({
         owner_id: user.id, plate: form.plate, route: form.route,
         driver: form.driver, conductor: form.conductor, status: form.status,
         trips_today: 0, lat: 0.3536 + (Math.random()-0.5)*0.02, lng: 32.7562 + (Math.random()-0.5)*0.02
@@ -995,7 +995,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
   };
 
   const handleDelete = async () => {
-    const { error } = await supabase.from('taxis').delete().eq('id', deleteTaxi.id);
+    const { error } = await db.from('taxis').delete().eq('id', deleteTaxi.id);
     if (error) { toast.show('Error removing taxi: ' + error.message, 'error'); return; }
     toast.show('Taxi removed from fleet', 'info');
     setDeleteTaxi(null);
@@ -1167,7 +1167,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
                           <td>
                             {!m.resolved && (
                               <button className="btn btn-green btn-sm" onClick={async () => {
-                                const { error } = await supabase.from('maintenance')
+                                const { error } = await db.from('maintenance')
                                   .update({ resolved: true, resolved_at: new Date().toISOString() })
                                   .eq('id', m.id);
                                 if (error) { toast.show('Error: ' + error.message, 'error'); return; }
@@ -1369,7 +1369,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    if (isConfigured) supabase?.auth.signOut();
+    if (isConfigured) db?.auth.signOut();
     setUser(null);
     setScreen('splash');
     toast.show('Signed out', 'info');
