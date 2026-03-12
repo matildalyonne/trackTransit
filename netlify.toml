@@ -1,0 +1,20 @@
+[build]
+  publish = "."
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Note: Set these in Netlify Dashboard → Site Settings → Environment Variables
+# Then reference them by adding this script tag to index.html before your app:
+#
+#  <script>
+#    window.SUPABASE_URL = "https://xxxxxxxxxxxx.supabase.co";
+#    window.SUPABASE_ANON_KEY = "your-anon-key-here";
+#  </script>
+#
+# Or use a _headers file to inject them via Netlify Edge Functions.
