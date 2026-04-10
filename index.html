@@ -1022,8 +1022,8 @@ function PaymentModal({ amount, ownerId, ownerEmail, ownerName, onClose, onSucce
   const pollRef = useRef(null);
 
   const providers = [
-    { id: 'mtn', icon: '📶', name: 'MTN MoMo', network: 'MTN Uganda' },
-    { id: 'airtel', icon: '📡', name: 'Airtel Money', network: 'Airtel Uganda' },
+    { id: 'mtn', icon: 'https://images.seeklogo.com/logo-png/55/1/mtn-momo-mobile-money-uganda-logo-png_seeklogo-556395.png', name: 'MTN MoMo', network: 'MTN Uganda' },
+    { id: 'airtel', icon: 'https://images.seeklogo.com/logo-png/55/1/airtel-money-uganda-logo-png_seeklogo-556391.png', name: 'Airtel Money', network: 'Airtel Uganda' },
   ];
 
   const initiatePayment = async () => {
