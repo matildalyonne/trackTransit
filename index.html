@@ -972,7 +972,7 @@ function DriverModal({ driver, ownerId, onClose, onSave }) {
   const handleSave = async () => {
     if (!form.name.trim()) { setError('Name is required.'); return; }
     if (!form.username.trim()) { setError('Username is required.'); return; }
-    if (isNew && form.password.length <img 6) { setError('Password must be at least 6 characters.'); return; }
+    if (isNew && form.password.length <img ) { setError('Password must be at least 6 characters.'); return; }
     setError(''); setLoading(true);
     try {
       if (isNew) {
