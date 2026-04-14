@@ -577,8 +577,7 @@
       color: white; position: relative; overflow: hidden;
     }
     .billing-hero::after {
-      content: '💳'; position: absolute; right: 24px; top: 50%; transform: translateY(-50%);
-      font-size: 4rem; opacity: 0.15;
+      display: none; /* removed emoji */
     }
     .billing-hero h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; }
     .billing-hero p { font-size: 0.85rem; opacity: 0.8; }
@@ -666,8 +665,8 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
 // ── SUPABASE CONFIG ───────────────────────────────────────────────────────────
-const SUPABASE_URL = 'https://hxrmmpzrfmtqumhfnxxk.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_wHjpxKBhbIglsdhxwf8Q9g_MbtTAGCz';
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 // Your Flutterwave public key (safe to put here — it's client-side only)
 const FLW_PUBLIC_KEY = 'YOUR_FLUTTERWAVE_PUBLIC_KEY';
 
@@ -755,7 +754,7 @@ function SetPasswordScreen({ onDone, toast }) {
       <div className="login-right">
         <div className="login-card">
           <div className="login-card-header">
-            <div className="login-role-badge">✉️ Invite</div>
+            <div className="login-role-badge" style={{display:"flex",alignItems:"center",gap:"5px"}} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Invite'}} />
             <h2>Set Up Your Account</h2>
             <p>You've been invited to Track Transit. Create your password to get started.</p>
           </div>
@@ -768,7 +767,7 @@ function SetPasswordScreen({ onDone, toast }) {
               <div className="form-group"><label className="form-label">Password *</label><input className="form-input" type="password" placeholder="At least 6 characters" value={password} onChange={e => setPassword(e.target.value)} /></div>
               <div className="form-group"><label className="form-label">Confirm Password *</label><input className="form-input" type="password" placeholder="Repeat your password" value={confirm} onChange={e => setConfirm(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSubmit()} /></div>
               <button className="btn btn-primary btn-full" onClick={handleSubmit} disabled={loading || !password || !confirm || !name}>
-                {loading ? 'Setting up...' : 'Create Account →'}
+                {loading ? 'Setting up...' : 'Create Account  →'}
               </button>
             </>
           )}
@@ -782,34 +781,11 @@ function SetPasswordScreen({ onDone, toast }) {
 function SplashScreen({ onSelect }) {
   return (
     <div className="splash">
-      <div className="splash-logo">
-        <div className="splash-logo-icon">
-          {/* Main Logo Image */}
-          <img src="https://www.thiings.co/_next/image?url=https%3A%2F%2Flftz25oez4aqbxpq.public.blob.vercel-storage.com%2Fimage-NfgvOBembqNs9sIE5QDAQMkAn7lrds.png&w=500&q=75" alt="Track Transit Logo" />
-        </div>
-        <h1>Track Transit</h1>
-      </div>
-      
+      <div className="splash-logo"><div className="splash-logo-icon"><img src="/logo.png" alt="Track Transit" style={{width:"36px",height:"36px",objectFit:"contain"}} /></div><h1>Track Transit</h1></div>
       <p className="splash-subtitle">Mukono Taxi Park Fleet Management</p>
-      
       <div className="splash-cards">
-        {/* Owner Card */}
-        <div className="role-card" onClick={() => onSelect('owner')}>
-          <div className="role-card-icon">
-            <img src="https://cdn-icons-png.flaticon.com/128/12724/12724606.png" alt="Owner" />
-          </div>
-          <h3>Fleet Owner</h3>
-          <p>Manage taxis, track live locations, view reports</p>
-        </div>
-
-        {/* Driver Card */}
-        <div className="role-card" onClick={() => onSelect('driver')}>
-          <div className="role-card-icon">
-            <img src="https://cdn-icons-png.flaticon.com/128/5283/5283024.png" alt="Driver" />
-          </div>
-          <h3>Driver</h3>
-          <p>Start your shift, report faults, log trips</p>
-        </div>
+        <div className="role-card" onClick={() => onSelect('owner')}><div className="role-card-icon" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>'}} /><h3>Fleet Owner</h3><p>Manage taxis, track live locations, view reports</p></div>
+        <div className="role-card" onClick={() => onSelect('driver')}><div className="role-card-icon" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="4.22" x2="9.17" y2="9.17"/><line x1="2" y1="12" x2="9" y2="12"/><line x1="4.22" y1="19.78" x2="9.17" y2="14.83"/><line x1="12" y1="22" x2="12" y2="15"/><line x1="19.78" y1="19.78" x2="14.83" y2="14.83"/><line x1="22" y1="12" x2="15" y2="12"/><line x1="19.78" y1="4.22" x2="14.83" y2="9.17"/></svg>'}} /><h3>Driver</h3><p>Start your shift, report faults, log trips</p></div>
       </div>
     </div>
   );
@@ -843,14 +819,13 @@ function OwnerLogin({ onBack, onLogin, toast }) {
   return (
     <div className="login-page">
       <div className="login-right">
-        <button className="login-back" onClick={onBack}>← Back</button>
+        <button className="login-back" onClick={onBack} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back'}}></button>
         <div className="login-card">
-          <div className="login-card-header"><div className="login-role-badge"><img src="https://cdn-icons-png.flaticon.com/128/12724/12724606.png" alt="Owner" />
- Fleet Owner</div><h2>Owner Sign In</h2><p>Access your fleet dashboard</p></div>
+          <div className="login-card-header"><div className="login-role-badge" style={{display:"flex",alignItems:"center",gap:"5px"}} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> Fleet Owner'}} /><h2>Owner Sign In</h2><p>Access your fleet dashboard</p></div>
           {error && <div className="alert alert-error">{error}</div>}
           <div className="form-group"><label className="form-label">Email Address</label><input className="form-input" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSubmit()} /></div>
           <div className="form-group"><label className="form-label">Password</label><input className="form-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSubmit()} /></div>
-          <button className="btn btn-primary btn-full" onClick={handleSubmit} disabled={loading} style={{marginTop:4}}>{loading ? 'Signing in...' : 'Sign In →'}</button>
+          <button className="btn btn-primary btn-full" onClick={handleSubmit} disabled={loading} style={{marginTop:4}}>{loading ? 'Signing in...' : 'Sign In  →'}</button>
         </div>
       </div>
     </div>
@@ -902,19 +877,19 @@ function DriverLogin({ onBack, onLogin, toast }) {
   return (
     <div className="login-page">
       <div className="login-right">
-        <button className="login-back" onClick={step === 2 ? () => { setStep(1); setOtp(''); setError(''); } : onBack}>← Back</button>
+        <button className="login-back" onClick={step === 2 ? () => { setStep(1); setOtp(''); setError(''); } : onBack} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back'}}></button>
         <div className="login-card">
-          <div className="login-card-header"><div className="login-role-badge"><img src="https://cdn-icons-png.flaticon.com/128/5283/5283024.png" alt="Driver" /> Driver</div><h2>{step === 1 ? 'Driver Sign In' : 'Verify OTP'}</h2><p>{step === 1 ? 'Enter your credentials to continue' : "Enter the OTP shown on the owner's dashboard"}</p></div>
+          <div className="login-card-header"><div className="login-role-badge" style={{display:"flex",alignItems:"center",gap:"5px"}} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="4.22" x2="9.17" y2="9.17"/><line x1="2" y1="12" x2="9" y2="12"/><line x1="4.22" y1="19.78" x2="9.17" y2="14.83"/><line x1="12" y1="22" x2="12" y2="15"/><line x1="19.78" y1="19.78" x2="14.83" y2="14.83"/><line x1="22" y1="12" x2="15" y2="12"/><line x1="19.78" y1="4.22" x2="14.83" y2="9.17"/></svg> Driver'}} /><h2>{step === 1 ? 'Driver Sign In' : 'Verify OTP'}</h2><p>{step === 1 ? 'Enter your credentials to continue' : "Enter the OTP shown on the owner's dashboard"}</p></div>
           {error && <div className="alert alert-error">{error}</div>}
           {step === 1 ? (
             <>
               <div className="form-group"><label className="form-label">Username</label><input className="form-input" placeholder="your.username" value={username} onChange={e => setUsername(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCredentials()} /></div>
               <div className="form-group"><label className="form-label">Password</label><input className="form-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCredentials()} /></div>
-              <button className="btn btn-primary btn-full" onClick={handleCredentials} disabled={loading}>{loading ? 'Verifying...' : 'Continue →'}</button>
+              <button className="btn btn-primary btn-full" onClick={handleCredentials} disabled={loading}>{loading ? 'Verifying...' : 'Continue  →'}</button>
             </>
           ) : (
             <>
-              <div className="otp-info-card"><div className="otp-info-icon">📱</div><div className="otp-info-text"><h4>Check the owner's dashboard</h4><p>A 4-digit OTP is now visible under "Pending OTPs"</p></div></div>
+              <div className="otp-info-card"><div className="otp-info-icon" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="3"/></svg>'}} /><div className="otp-info-text"><h4>Check the owner's dashboard</h4><p>A 4-digit OTP is now visible under "Pending OTPs"</p></div></div>
               <div className="form-group"><label className="form-label">Enter OTP</label><input className="form-input otp" maxLength={4} placeholder="0000" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g,'').substring(0,4))} onKeyDown={e => e.key === 'Enter' && handleOTP()} /></div>
               <button className="btn btn-green btn-full" onClick={handleOTP} disabled={loading || otp.length !== 4}>{loading ? 'Verifying...' : 'Verify & Enter'}</button>
             </>
@@ -945,9 +920,9 @@ function OwnerMap({ taxis }) {
     taxis.forEach(taxi => {
       if (!taxi.lat || !taxi.lng) return;
       const statusColor = taxi.status === 'active' ? '#2E7D32' : taxi.status === 'breakdown' ? '#C62828' : '#E65100';
-      const icon = L.divIcon({ className: '', html: `<div style="background:${statusColor};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.25);">🚕</div>`, iconSize: [36,36], iconAnchor: [18,18], popupAnchor: [0,-20] });
+      const icon = L.divIcon({ className: '', html: `<div style="background:${statusColor};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.25);"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"white\" stroke=\"none\"><path d=\"M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v5a2 2 0 0 1-2 2h-2\"/><circle cx=\"7\" cy=\"20\" r=\"2\"/><circle cx=\"17\" cy=\"20\" r=\"2\"/><path d=\"M9 6H5v6h14V9\"/></svg></div>`, iconSize: [36,36], iconAnchor: [18,18], popupAnchor: [0,-20] });
       const mCount = (taxi.maintenance||[]).filter(m=>!m.resolved).length;
-      const popup = `<div class="taxi-popup-header"><div><h4>${taxi.plate}</h4><small>${taxi.route||''}</small></div><span style="background:rgba(255,255,255,0.2);padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">${(taxi.status||'').toUpperCase()}</span></div><div class="taxi-popup-body"><div class="taxi-popup-row"><label>Driver</label><span>${taxi.driver||'—'}</span></div><div class="taxi-popup-row"><label>Conductor</label><span>${taxi.conductor||'—'}</span></div><div class="taxi-popup-row"><label>Trips Today</label><span style="color:var(--blue);font-weight:700;">${taxi.trips_today||0}</span></div><div class="taxi-popup-row"><label>Open Issues</label><span style="color:${mCount>0?'#C62828':'#2E7D32'};font-weight:700;">${mCount>0?mCount+' issue(s)':'None ✓'}</span></div>${mCount>0?`<div style="margin-top:8px;padding:8px;background:#FFF3E0;border-radius:6px;font-size:11px;color:#BF360C;">⚠ ${(taxi.maintenance||[]).filter(m=>!m.resolved)[0]?.type}: ${(taxi.maintenance||[]).filter(m=>!m.resolved)[0]?.note}</div>`:''}${taxi.last_seen?`<div style="margin-top:6px;font-size:11px;color:var(--gray-400);">Last seen: ${new Date(taxi.last_seen).toLocaleTimeString()}</div>`:''}</div>`;
+      const popup = `<div class="taxi-popup-header"><div><h4>${taxi.plate}</h4><small>${taxi.route||''}</small></div><span style="background:rgba(255,255,255,0.2);padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">${(taxi.status||'').toUpperCase()}</span></div><div class="taxi-popup-body"><div class="taxi-popup-row"><label>Driver</label><span>${taxi.driver||'—'}</span></div><div class="taxi-popup-row"><label>Conductor</label><span>${taxi.conductor||'—'}</span></div><div class="taxi-popup-row"><label>Trips Today</label><span style="color:var(--blue);font-weight:700;">${taxi.trips_today||0}</span></div><div class="taxi-popup-row"><label>Open Issues</label><span style="color:${mCount>0?'#C62828':'#2E7D32'};font-weight:700;">${mCount>0?mCount+' issue(s)':'None ✓'}</span></div>${mCount>0?`<div style="margin-top:8px;padding:8px;background:#FFF3E0;border-radius:6px;font-size:11px;color:#BF360C;"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#BF360C\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"/><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"/></svg> ${(taxi.maintenance||[]).filter(m=>!m.resolved)[0]?.type}: ${(taxi.maintenance||[]).filter(m=>!m.resolved)[0]?.note}</div>`:''}${taxi.last_seen?`<div style="margin-top:6px;font-size:11px;color:var(--gray-400);">Last seen: ${new Date(taxi.last_seen).toLocaleTimeString()}</div>`:''}</div>`;
       const marker = L.marker([taxi.lat, taxi.lng], { icon }).addTo(map);
       marker.bindPopup(popup, { maxWidth: 280 });
       markersRef.current.push(marker);
@@ -963,7 +938,7 @@ function TaxiModal({ taxi, onClose, onSave }) {
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }));
   return (
     <div className="modal-overlay" onClick={onClose}><div className="modal" onClick={e => e.stopPropagation()}>
-      <div className="modal-header"><h3>{taxi ? 'Edit Taxi' : 'Add New Taxi'}</h3><button className="modal-close" onClick={onClose}>✕</button></div>
+      <div className="modal-header"><h3>{taxi ? 'Edit Taxi' : 'Add New Taxi'}</h3><button className="modal-close" onClick={onClose} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'}} /></div>
       <div className="modal-body">
         <div className="form-group"><label className="form-label">Number Plate *</label><input className="form-input" placeholder="e.g. UAX 123B" value={form.plate} onChange={e => update('plate', e.target.value)} /></div>
         <div className="form-group"><label className="form-label">Route</label><input className="form-input" placeholder="e.g. Mukono–Kampala" value={form.route} onChange={e => update('route', e.target.value)} /></div>
@@ -979,7 +954,7 @@ function TaxiModal({ taxi, onClose, onSave }) {
 function DeleteModal({ item, label, onClose, onConfirm }) {
   return (
     <div className="modal-overlay" onClick={onClose}><div className="modal" style={{maxWidth:360}} onClick={e => e.stopPropagation()}>
-      <div className="modal-header"><h3>Remove {label}</h3><button className="modal-close" onClick={onClose}>✕</button></div>
+      <div className="modal-header"><h3>Remove {label}</h3><button className="modal-close" onClick={onClose} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'}} /></div>
       <div className="modal-body"><p style={{fontSize:'0.9rem',color:'var(--gray-700)'}}>Are you sure you want to remove <strong>{item}</strong>? This cannot be undone.</p></div>
       <div className="modal-footer"><button className="btn btn-ghost" onClick={onClose}>Cancel</button><button className="btn btn-danger" onClick={onConfirm}>Remove</button></div>
     </div></div>
@@ -996,7 +971,7 @@ function DriverModal({ driver, ownerId, onClose, onSave }) {
   const handleSave = async () => {
     if (!form.name.trim()) { setError('Name is required.'); return; }
     if (!form.username.trim()) { setError('Username is required.'); return; }
-    if (isNew && form.password.length <img ) { setError('Password must be at least 6 characters.'); return; }
+    if (isNew && form.password.length < 6) { setError('Password must be at least 6 characters.'); return; }
     setError(''); setLoading(true);
     try {
       if (isNew) {
@@ -1021,7 +996,7 @@ function DriverModal({ driver, ownerId, onClose, onSave }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}><div className="modal" onClick={e => e.stopPropagation()}>
-      <div className="modal-header"><h3>{isNew ? 'Add New Driver' : 'Edit Driver'}</h3><button className="modal-close" onClick={onClose}>✕</button></div>
+      <div className="modal-header"><h3>{isNew ? 'Add New Driver' : 'Edit Driver'}</h3><button className="modal-close" onClick={onClose} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'}} /></div>
       <div className="modal-body">
         {error && <div className="alert alert-error">{error}</div>}
         <div className="form-group"><label className="form-label">Full Name *</label><input className="form-input" placeholder="e.g. John Ssempala" value={form.name} onChange={e => update('name', e.target.value)} /></div>
@@ -1046,8 +1021,8 @@ function PaymentModal({ amount, ownerId, ownerEmail, ownerName, onClose, onSucce
   const pollRef = useRef(null);
 
   const providers = [
-    { id: 'mtn', icon: '<img src="https://images.seeklogo.com/logo-png/55/1/mtn-momo-mobile-money-uganda-logo-png_seeklogo-556395.png" alt="Driver" />', name: 'MTN MoMo', network: 'MTN Uganda' },
-    { id: 'airtel', icon: '<img src=https://images.seeklogo.com/logo-png/55/1/airtel-money-uganda-logo-png_seeklogo-556391.png" />', name: 'Airtel Money', network: 'Airtel Uganda' },
+    { id: 'mtn', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><rect x="2" y="18" width="4" height="4" fill="currentColor" stroke="none"/><rect x="9" y="13" width="4" height="9" fill="currentColor" stroke="none"/><rect x="16" y="8" width="4" height="14" fill="currentColor" stroke="none"/></svg>`, name: 'MTN MoMo', network: 'MTN Uganda' },
+    { id: 'airtel', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg>`, name: 'Airtel Money', network: 'Airtel Uganda' },
   ];
 
   const initiatePayment = async () => {
@@ -1103,7 +1078,7 @@ function PaymentModal({ amount, ownerId, ownerEmail, ownerName, onClose, onSucce
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h3>Pay Monthly Subscription</h3>
-          {step !== 'pending' && <button className="modal-close" onClick={onClose}>✕</button>}
+          {step !== 'pending' && <button className="modal-close" onClick={onClose} dangerouslySetInnerHTML={{__html:'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'}} />}
         </div>
 
         {step === 'choose' && (
@@ -1118,7 +1093,7 @@ function PaymentModal({ amount, ownerId, ownerEmail, ownerName, onClose, onSucce
                 <div className="momo-providers">
                   {providers.map(p => (
                     <div key={p.id} className={`momo-btn ${provider === p.id ? 'selected' : ''}`} onClick={() => setProvider(p.id)}>
-                      <span className="momo-btn-icon">{p.icon}</span>
+                      <span className="momo-btn-icon" dangerouslySetInnerHTML={{__html: p.icon}} />
                       <span className="momo-btn-name">{p.name}</span>
                       <span className="momo-btn-network">{p.network}</span>
                     </div>
@@ -1144,7 +1119,7 @@ function PaymentModal({ amount, ownerId, ownerEmail, ownerName, onClose, onSucce
 
         {step === 'pending' && (
           <div className="payment-pending">
-            <div className="payment-pending-icon"><img src="https://cdn-icons-png.flaticon.com/128/17719/17719584.png" /></div>
+            <div className="payment-pending-icon" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="3"/></svg>'}} />
             <h3>Check Your Phone</h3>
             <p>A payment prompt has been sent to <strong>{phone}</strong>.<br/>Enter your Mobile Money PIN to confirm the payment.<br/><br/>This screen will update automatically.</p>
             <div style={{marginTop:20}}><div className="spinner" style={{margin:'0 auto'}}></div></div>
@@ -1153,7 +1128,7 @@ function PaymentModal({ amount, ownerId, ownerEmail, ownerName, onClose, onSucce
 
         {step === 'success' && (
           <div className="payment-success">
-            <div className="payment-success-icon"><img src="https://cdn-icons-png.flaticon.com/128/14090/14090371.png" /></div>
+            <div className="payment-success-icon" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'}} />
             <h3 style={{fontFamily:'Syne',fontWeight:800,marginBottom:6}}>Payment Successful!</h3>
             <p style={{color:'var(--gray-500)',fontSize:'0.875rem'}}>Your subscription has been activated. You can now continue using all features.</p>
           </div>
@@ -1162,7 +1137,7 @@ function PaymentModal({ amount, ownerId, ownerEmail, ownerName, onClose, onSucce
         {step === 'error' && (
           <>
             <div className="payment-pending" style={{paddingBottom:10}}>
-              <div style={{fontSize:'3rem',marginBottom:12}}>❌</div>
+              <div style={{marginBottom:12}} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'}} />
               <h3>Payment Failed</h3>
               <p>{errMsg}</p>
             </div>
@@ -1206,7 +1181,7 @@ function BillingPage({ user, taxiCount, driverCount, hasPaidThisMonth, onPayment
         <p>Billing period: {new Date().toLocaleDateString('en-UG', { month: 'long', year: 'numeric' })}</p>
         <div className="billing-amount">{bill.total === 0 ? 'Free' : fmtUGX(bill.total)} <span>/ month</span></div>
         {bill.total === 0
-          ? <div className="billing-free-badge">🎉 You're on the free tier</div>
+          ? <div className="billing-free-badge" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> You are on the free tier'}} />
           : <div className="billing-due">Next payment due: {nextDue}</div>
         }
       </div>
@@ -1214,25 +1189,25 @@ function BillingPage({ user, taxiCount, driverCount, hasPaidThisMonth, onPayment
       {/* Pricing cards */}
       <div className="plan-cards">
         <div className="plan-card">
-          <div className="plan-card-icon"><img src="https://cdn-icons-png.flaticon.com/128/2508/2508735.png" alt="Driver" /></div>
+          <div className="plan-card-icon" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v5a2 2 0 0 1-2 2h-2"/><circle cx="7" cy="20" r="2"/><circle cx="17" cy="20" r="2"/><path d="M9 6H5v6h14V9"/></svg>'}} />
           <h4>First Taxi</h4>
           <div className="plan-price free">Free</div>
           <p>Your first taxi is always included at no charge.</p>
         </div>
         <div className="plan-card">
-          <div className="plan-card-icon"><img src="https://cdn-icons-png.flaticon.com/128/5283/5283024.png" alt="Driver" /></div>
+          <div className="plan-card-icon" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'}} />
           <h4>First 2 Drivers</h4>
           <div className="plan-price free">Free</div>
           <p>Your first two drivers are always included.</p>
         </div>
         <div className={`plan-card ${bill.extraTaxis > 0 ? 'highlight' : ''}`}>
-          <div className="plan-card-icon"><img src="https://cdn-icons-png.flaticon.com/128/55/55177.png" alt="Driver" /></div>
+          <div className="plan-card-icon" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E65100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'}} />
           <h4>Extra Taxis</h4>
           <div className="plan-price">{fmtUGX(PRICE_PER_EXTRA_TAXI)}</div>
           <p>Per additional taxi, per month.</p>
         </div>
         <div className={`plan-card ${bill.extraDrivers > 0 ? 'highlight' : ''}`}>
-          <div className="plan-card-icon"><img src="https://cdn-icons-png.flaticon.com/128/5283/5283024.png" alt="Driver" /></div>
+          <div className="plan-card-icon" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E65100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'}} />
           <h4>Extra Drivers</h4>
           <div className="plan-price">{fmtUGX(PRICE_PER_EXTRA_DRIVER)}</div>
           <p>Per additional driver, per month.</p>
@@ -1271,44 +1246,52 @@ function BillingPage({ user, taxiCount, driverCount, hasPaidThisMonth, onPayment
         </div>
       </div>
 
-      {/* Pay button — always visible so owners can pay in advance */}
-      <div className="billing-breakdown" style={{marginBottom:20}}>
-        <div style={{padding:'16px 20px'}}>
-          <div style={{marginBottom:12}}>
-            <div style={{fontSize:'0.8rem',fontWeight:600,color:'var(--gray-700)',marginBottom:2}}>Pay for next month</div>
-            <div style={{fontSize:'0.78rem',color:'var(--gray-500)',lineHeight:1.5}}>
-              {bill.total === 0
-                ? `You are on the free tier (${FREE_TAXIS} taxi, ${FREE_DRIVERS} drivers). If you plan to add more, pay in advance to avoid being blocked.`
-                : `You have ${bill.extraTaxis > 0 ? bill.extraTaxis + ' extra taxi' + (bill.extraTaxis !== 1 ? 's' : '') : ''}${bill.extraTaxis > 0 && bill.extraDrivers > 0 ? ' and ' : ''}${bill.extraDrivers > 0 ? bill.extraDrivers + ' extra driver' + (bill.extraDrivers !== 1 ? 's' : '') : ''} this month.`
-              }
+      {/* Pay button — context-aware: paid / owe money / free tier pre-pay */}
+      {hasPaidThisMonth ? (
+        <div style={{background:'var(--green-pale)',border:'1.5px solid var(--green)',borderRadius:'var(--radius)',padding:'16px 20px',marginBottom:20,display:'flex',alignItems:'center',gap:12}}>
+          <span dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'}} />
+          <div>
+            <div style={{fontWeight:700,color:'var(--green)',fontSize:'0.9rem'}}>Subscription active this month</div>
+            <div style={{fontSize:'0.78rem',color:'var(--gray-600)',marginTop:2}}>You can add extra taxis and drivers until the end of this month.</div>
+          </div>
+        </div>
+      ) : bill.total > 0 ? (
+        /* Already over limit — pay exact bill */
+        <button className="btn btn-primary btn-full" style={{marginBottom:20,padding:'14px'}} onClick={() => setShowPayModal(true)}>
+          {'Pay '}{fmtUGX(bill.total)}{'  via Mobile Money'}
+        </button>
+      ) : (
+        /* Free tier — let them pre-pay to unlock extras */
+        <div style={{marginBottom:20}}>
+          <div style={{background:'var(--blue-pale)',border:'1.5px solid var(--blue-light)',borderRadius:'var(--radius)',padding:'14px 18px',marginBottom:10}}>
+            <div style={{fontWeight:700,color:'var(--blue)',fontSize:'0.875rem',marginBottom:4}}>Want to add more taxis or drivers?</div>
+            <div style={{fontSize:'0.8rem',color:'var(--gray-600)',lineHeight:1.5,marginBottom:12}}>
+              You're on the free tier (1 taxi, 2 drivers). Pay now to unlock extras for this month.
+            </div>
+            <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+              <button className="btn btn-primary btn-sm" onClick={() => { setCustomAmount(PRICE_PER_EXTRA_TAXI); setShowPayModal(true); }}>
+                +1 Taxi — {fmtUGX(PRICE_PER_EXTRA_TAXI)}
+              </button>
+              <button className="btn btn-primary btn-sm" onClick={() => { setCustomAmount(PRICE_PER_EXTRA_DRIVER); setShowPayModal(true); }}>
+                +1 Driver — {fmtUGX(PRICE_PER_EXTRA_DRIVER)}
+              </button>
+              <button className="btn btn-outline btn-sm" onClick={() => { setCustomAmount(PRICE_PER_EXTRA_TAXI + PRICE_PER_EXTRA_DRIVER); setShowPayModal(true); }}>
+                Both — {fmtUGX(PRICE_PER_EXTRA_TAXI + PRICE_PER_EXTRA_DRIVER)}
+              </button>
             </div>
           </div>
-          {bill.total === 0 ? (
-            <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-              <button className="btn btn-outline btn-sm" onClick={() => { setCustomAmount(PRICE_PER_EXTRA_TAXI); setShowPayModal(true); }}>
-                Pay for +1 Taxi ({fmtUGX(PRICE_PER_EXTRA_TAXI)})
-              </button>
-              <button className="btn btn-outline btn-sm" onClick={() => { setCustomAmount(PRICE_PER_EXTRA_DRIVER); setShowPayModal(true); }}>
-                Pay for +1 Driver ({fmtUGX(PRICE_PER_EXTRA_DRIVER)})
-              </button>
-            </div>
-          ) : (
-            <button className="btn btn-primary btn-full" style={{padding:'13px'}} onClick={() => setShowPayModal(true)}>
-              📱 Pay {fmtUGX(bill.total)} via Mobile Money
-            </button>
-          )}
         </div>
-      </div>
+      )}
 
       {/* Payment history */}
       <div className="table-card">
         <div className="table-card-header"><h3>Payment History</h3></div>
         {loadingHistory ? <div className="loading"><div className="spinner"></div></div>
           : payments.length === 0
-            ? <div className="empty-state"><div className="empty-state-icon"><img src="https://cdn-icons-png.flaticon.com/128/7939/7939869.png" /></div><p>No payments yet.</p></div>
+            ? <div className="empty-state"><div className="empty-state-icon" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>'}} /><p>No payments yet.</p></div>
             : payments.map(p => (
               <div key={p.id} className="history-item">
-                <div className={`history-icon ${p.status}`}>{p.status==='successful'?'<img src="https://cdn-icons-png.flaticon.com/128/14090/14090371.png" />':p.status==='pending'?'<img src="https://cdn-icons-png.flaticon.com/128/17719/17719584.png" />':'<img src="https://cdn-icons-png.flaticon.com/128/399/399274.png" />'}</div>
+                <div className={`history-icon ${p.status}`}>{p.status==='successful'? <span dangerouslySetInnerHTML={{__html:'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'}} /> : p.status==='pending'? <span dangerouslySetInnerHTML={{__html:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E65100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'}} /> : <span dangerouslySetInnerHTML={{__html:'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'}} />}</div>
                 <div className="history-info">
                   <div className="history-info-title">{p.description || 'Monthly subscription'}</div>
                   <div className="history-info-meta">{p.provider} · {p.phone} · {new Date(p.created_at).toLocaleDateString()}</div>
@@ -1339,7 +1322,7 @@ function BillingGate({ type, onGoToBilling }) {
   const isDriver = type === 'driver';
   return (
     <div className="billing-gate">
-      <div className="billing-gate-icon"><img src="https://cdn-icons-png.flaticon.com/128/641/641693.png" /></div>
+      <div className="billing-gate-icon" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E65100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><rect x="3" y="11" width="22" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'}} />
       <div>
         <h4>Subscription required to add more {isDriver ? 'drivers' : 'taxis'}</h4>
         <p>
@@ -1456,24 +1439,23 @@ function OwnerDashboard({ user, onLogout, toast }) {
   };
 
   const navItems = [
-    ['map',         '<img src="https://cdn-icons-png.flaticon.com/128/5155/5155270.png" />', 'Live Map'],
-    ['taxis',       '<img src="https://cdn-icons-png.flaticon.com/128/5411/5411418.png" />', 'My Taxis'],
-    ['drivers',     '<img src="https://cdn-icons-png.flaticon.com/128/5283/5283024.png" alt="Driver" />', 'Drivers'],
-    ['maintenance', '<img src="https://cdn-icons-png.flaticon.com/128/1077/1077198.png" />', 'Maintenance'],
-    ['otps',        '<img src="https://cdn-icons-png.flaticon.com/128/159/159478.png" />', 'Pending OTPs'],
-    ['billing',     '<img src="https://cdn-icons-png.flaticon.com/128/4021/4021708.png" />', 'Billing'],
+    ['map',         `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>`, 'Live Map'],
+    ['taxis',       `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v5a2 2 0 0 1-2 2h-2"/><circle cx="7" cy="20" r="2"/><circle cx="17" cy="20" r="2"/><path d="M9 6H5v6h14V9"/></svg>`, 'My Taxis'],
+    ['drivers',     `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`, 'Drivers'],
+    ['maintenance', `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`, 'Maintenance'],
+    ['otps',        `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>`, 'Pending OTPs'],
+    ['billing',     `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`, 'Billing'],
   ];
 
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="sidebar-logo"><div className="sidebar-logo-icon"><img src="https://www.thiings.co/_next/image?url=https%3A%2F%2Flftz25oez4aqbxpq.public.blob.vercel-storage.com%2Fimage-NfgvOBembqNs9sIE5QDAQMkAn7lrds.png&w=500&q=75" alt="Track Transit Logo" />
-</div><span>Track Transit</span></div>
+        <div className="sidebar-logo"><div className="sidebar-logo-icon"><img src="/logo.png" alt="logo" style={{width:"24px",height:"24px",objectFit:"contain"}} /></div><span>Track Transit</span></div>
         <nav className="sidebar-nav">
           <div className="sidebar-section-label">Dashboard</div>
           {navItems.map(([id, icon, label]) => (
             <button key={id} className={`sidebar-item ${page === id ? 'active' : ''}`} onClick={() => { setPage(id); if (id==='otps') loadPendingOtps(); if (id==='drivers') loadDrivers(); }}>
-              <span className="sidebar-icon">{icon}</span> {label}
+              <span className="sidebar-icon" dangerouslySetInnerHTML={{__html: icon}} /> {label}
               {id === 'otps' && pendingOtps.length > 0 && <span style={{marginLeft:'auto',background:'var(--orange)',color:'white',borderRadius:'10px',padding:'1px 7px',fontSize:'0.7rem',fontWeight:700}}>{pendingOtps.length}</span>}
               {id === 'billing' && bill.total > 0 && !hasPaidThisMonth && <span style={{marginLeft:'auto',background:'#C62828',color:'white',borderRadius:'10px',padding:'1px 7px',fontSize:'0.7rem',fontWeight:700}}>Due</span>}
             </button>
@@ -1494,27 +1476,27 @@ function OwnerDashboard({ user, onLogout, toast }) {
             {page==='map'&&'Live Fleet Map'}{page==='taxis'&&'My Taxis'}{page==='drivers'&&'Drivers'}{page==='maintenance'&&'Maintenance Reports'}{page==='otps'&&'Pending Driver OTPs'}{page==='billing'&&'Billing & Subscription'}
           </div>
           <div className="topbar-right">
-            {lastRefresh && <span style={{fontSize:'0.72rem',color:'var(--gray-400)',marginRight:6}}>↻ {lastRefresh.toLocaleTimeString()}</span>}
-            <span className="topbar-badge badge-green">🟢 {activeTaxis} Active</span>
-            {breakdowns > 0 && <span className="topbar-badge badge-red">🔴 {breakdowns} Breakdown</span>}
-            {pendingOtps.length > 0 && <span className="topbar-badge badge-orange">🔑 {pendingOtps.length} OTP</span>}
-            {bill.total > 0 && !hasPaidThisMonth && <span className="topbar-badge badge-red">💳 {fmtUGX(bill.total)} due</span>}
+            {lastRefresh && <span style={{fontSize:'0.72rem',color:'var(--gray-400)',marginRight:6}} dangerouslySetInnerHTML={{__html: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>` + ' ' + lastRefresh.toLocaleTimeString()}} ></span>}
+            <span className="topbar-badge badge-green" dangerouslySetInnerHTML={{__html: '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2E7D32;margin-right:4px;"></span>' + activeTaxis + ' Active'}} />
+            {breakdowns > 0 && <span className="topbar-badge badge-red" dangerouslySetInnerHTML={{__html: '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#C62828;margin-right:4px;"></span>' + breakdowns + ' Breakdown'}} />}
+            {pendingOtps.length > 0 && <span className="topbar-badge badge-orange" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>' + pendingOtps.length + ' OTP'}} />}
+            {bill.total > 0 && !hasPaidThisMonth && <span className="topbar-badge badge-red" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>' + ' ' + fmtUGX(bill.total) + ' due'}} />}
           </div>
         </div>
 
         <div className="page">
           <div className="stats-row">
-            <div className="stat-card"><div className="stat-card-top"><div className="stat-icon stat-icon-blue">🚕</div></div><div className="stat-value">{taxis.length}</div><div className="stat-label">Total Taxis</div></div>
-            <div className="stat-card"><div className="stat-card-top"><div className="stat-icon stat-icon-green">✅</div></div><div className="stat-value">{activeTaxis}</div><div className="stat-label">Active Now</div></div>
-            <div className="stat-card"><div className="stat-card-top"><div className="stat-icon stat-icon-orange">🔄</div></div><div className="stat-value">{totalTrips}</div><div className="stat-label">Trips Today</div></div>
-            <div className="stat-card"><div className="stat-card-top"><div className="stat-icon stat-icon-red">⚠️</div></div><div className="stat-value" style={{color:openIssues>0?'#C62828':'inherit'}}>{openIssues}</div><div className="stat-label">Open Issues</div></div>
-            <div className="stat-card"><div className="stat-card-top"><div className="stat-icon stat-icon-blue">👤</div></div><div className="stat-value">{activeDrivers}</div><div className="stat-label">Active Drivers</div></div>
+            <div className="stat-card"><div className="stat-card-top"><div className="stat-icon stat-icon-blue" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v5a2 2 0 0 1-2 2h-2"/><circle cx="7" cy="20" r="2"/><circle cx="17" cy="20" r="2"/><path d="M9 6H5v6h14V9"/></svg>'}} /></div><div className="stat-value">{taxis.length}</div><div className="stat-label">Total Taxis</div></div>
+            <div className="stat-card"><div className="stat-card-top"><div className="stat-icon stat-icon-green" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'}} /></div><div className="stat-value">{activeTaxis}</div><div className="stat-label">Active Now</div></div>
+            <div className="stat-card"><div className="stat-card-top"><div className="stat-icon stat-icon-orange" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E65100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>'}} /></div><div className="stat-value">{totalTrips}</div><div className="stat-label">Trips Today</div></div>
+            <div className="stat-card"><div className="stat-card-top"><div className="stat-icon stat-icon-red" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'}} /></div><div className="stat-value" style={{color:openIssues>0?'#C62828':'inherit'}}>{openIssues}</div><div className="stat-label">Open Issues</div></div>
+            <div className="stat-card"><div className="stat-card-top"><div className="stat-icon stat-icon-blue" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'}} /></div><div className="stat-value">{activeDrivers}</div><div className="stat-label">Active Drivers</div></div>
           </div>
 
           {page === 'map' && (
             <div className="map-card">
               <div className="map-card-header"><h3>Fleet Locations — Mukono Area</h3><span style={{fontSize:'0.78rem',color:'var(--gray-500)'}}>Auto-refreshes every 15s · Tap a taxi for details</span></div>
-              {taxis.length === 0 && !loadingTaxis ? <div className="empty-state" style={{padding:'60px 20px'}}><div className="empty-state-icon">🗺️</div><p>No taxis yet.</p></div> : <OwnerMap taxis={taxis} />}
+              {taxis.length === 0 && !loadingTaxis ? <div className="empty-state" style={{padding:'60px 20px'}}><div className="empty-state-icon" dangerouslySetInnerHTML={{__html: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>`}} /><p>No taxis yet.</p></div> : <OwnerMap taxis={taxis} />}
             </div>
           )}
 
@@ -1542,7 +1524,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
                         <td><div className="td-actions"><button className="btn btn-outline btn-sm" onClick={() => { setEditTaxi(taxi); setShowTaxiModal(true); }}>Edit</button><button className="btn btn-danger btn-sm" onClick={() => setDeleteItem({ type:'taxi', id:taxi.id, label:taxi.plate })}>Del</button></div></td>
                       </tr>
                     ))}
-                    {filteredTaxis.length===0 && <tr><td colSpan={7}><div className="empty-state"><div className="empty-state-icon">{taxis.length===0?'🚕':'🔍'}</div><p>{taxis.length===0?'No taxis yet. Click + Add Taxi.':'No taxis match your search.'}</p></div></td></tr>}
+                    {filteredTaxis.length===0 && <tr><td colSpan={7}><div className="empty-state"><div className="empty-state-icon" dangerouslySetInnerHTML={{__html: taxis.length===0 ? "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"36\" height=\"36\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#94A3B8\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v5a2 2 0 0 1-2 2h-2\"/><circle cx=\"7\" cy=\"20\" r=\"2\"/><circle cx=\"17\" cy=\"20\" r=\"2\"/><path d=\"M9 6H5v6h14V9\"/></svg>" : "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"36\" height=\"36\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#94A3B8\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"/></svg>"}} /><p>{taxis.length===0?'No taxis yet. Click + Add Taxi.':'No taxis match your search.'}</p></div></td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -1573,7 +1555,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
                           <td><div className="td-actions"><button className="btn btn-outline btn-sm" onClick={() => { setEditDriver(driver); setShowDriverModal(true); }}>Edit</button><button className="btn btn-danger btn-sm" onClick={() => setDeleteItem({ type:'driver', id:driver.id, label:driver.name })}>Del</button></div></td>
                         </tr>
                       ))}
-                      {filteredDrivers.length===0 && <tr><td colSpan={6}><div className="empty-state"><div className="empty-state-icon">{drivers.length===0?'👤':'🔍'}</div><p>{drivers.length===0?'No drivers yet. Click + Add Driver.':'No drivers match your search.'}</p></div></td></tr>}
+                      {filteredDrivers.length===0 && <tr><td colSpan={6}><div className="empty-state"><div className="empty-state-icon" dangerouslySetInnerHTML={{__html: drivers.length===0 ? "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"36\" height=\"36\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#94A3B8\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/></svg>" : "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"36\" height=\"36\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#94A3B8\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"/></svg>"}} /><p>{drivers.length===0?'No drivers yet. Click + Add Driver.':'No drivers match your search.'}</p></div></td></tr>}
                     </tbody>
                   </table>
                 )}
@@ -1586,7 +1568,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
               <div className="table-card-header"><h3>Maintenance Reports</h3><span className="topbar-badge badge-orange">{openIssues} Open</span></div>
               <div style={{padding:'8px 0'}}>
                 {taxis.flatMap(taxi=>(taxi.maintenance||[]).map(m=>({...m,plate:taxi.plate,route:taxi.route}))).length===0
-                  ? <div className="empty-state"><div className="empty-state-icon">✅</div><p>No maintenance reports. All taxis running fine!</p></div>
+                  ? <div className="empty-state"><div className="empty-state-icon" dangerouslySetInnerHTML={{__html: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`}} /><p>No maintenance reports. All taxis running fine!</p></div>
                   : <table><thead><tr><th>Taxi</th><th>Issue Type</th><th>Notes</th><th>Reported</th><th>Status</th><th>Action</th></tr></thead><tbody>
                       {taxis.flatMap(taxi=>(taxi.maintenance||[]).map(m=>(
                         <tr key={m.id}>
@@ -1606,9 +1588,9 @@ function OwnerDashboard({ user, onLogout, toast }) {
 
           {page === 'otps' && (
             <div className="table-card">
-              <div className="table-card-header"><h3>Pending Driver OTPs</h3><button className="btn btn-outline btn-sm" onClick={loadPendingOtps}>↻ Refresh</button></div>
+              <div className="table-card-header"><h3>Pending Driver OTPs</h3><button className="btn btn-outline btn-sm" onClick={loadPendingOtps} style={{display:"flex",alignItems:"center",gap:"5px"}} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Refresh'}} /></div>
               {pendingOtps.length===0
-                ? <div className="empty-state"><div className="empty-state-icon">🔑</div><p>No pending OTPs. When a driver logs in their code appears here.</p></div>
+                ? <div className="empty-state"><div className="empty-state-icon" dangerouslySetInnerHTML={{__html: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>`}} /><p>No pending OTPs. When a driver logs in their code appears here.</p></div>
                 : <table><thead><tr><th>Driver</th><th>Username</th><th>OTP Code</th><th>Expires</th><th>Action</th></tr></thead><tbody>
                     {pendingOtps.map(otp=>(
                       <tr key={otp.id}>
@@ -1742,10 +1724,10 @@ function DriverDashboard({ user, onLogout, toast }) {
         <div className="driver-status-card">
           <h3>GPS Location</h3>
           <div className="status-indicator"><div className={`status-dot ${tracking?'active':'inactive'}`}></div><span style={{fontSize:'0.875rem',fontWeight:600,color:tracking?'var(--green)':'var(--gray-500)'}}>{tracking?'Sharing location with owner':'Not tracking'}</span></div>
-          {location && <div className="gps-info">📍 {location.lat.toFixed(5)}, {location.lng.toFixed(5)} · ±{location.acc}m accuracy</div>}
+          {location && <div className="gps-info" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + ' ' + location.lat.toFixed(5) + ','}}>< {location.lng.toFixed(5)} ±{location.acc}m accuracy</div>}
           {locationError && <div className="alert alert-error" style={{marginTop:8,marginBottom:0}}>{locationError}</div>}
           <div style={{display:'flex',gap:8,marginTop:12}}>
-            {!tracking ? <button className="btn btn-green btn-full" onClick={startTracking} disabled={!selectedTaxi}>📡 Start GPS Tracking</button> : <button className="btn btn-danger btn-full" onClick={stopTracking}>⏹ Stop Tracking</button>}
+            {!tracking ? <button className="btn btn-green btn-full" onClick={startTracking} disabled={!selectedTaxi} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M2 12 C2 6.48 6.48 2 12 2"/><path d="M22 12 C22 17.52 17.52 22 12 22"/><path d="M5.64 5.64 A9 9 0 0 0 5.64 18.36"/><path d="M18.36 18.36 A9 9 0 0 0 18.36 5.64"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg> Start GPS Tracking'}}></button> : <button className="btn btn-danger btn-full" onClick={stopTracking} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><rect x="3" y="3" width="18" height="18" rx="2" fill="white" stroke="none"/></svg> Stop Tracking'}}></button>}
           </div>
           {!selectedTaxi && <p style={{fontSize:'0.75rem',color:'var(--gray-400)',marginTop:8,textAlign:'center'}}>Select a taxi above to enable tracking</p>}
         </div>
@@ -1753,7 +1735,7 @@ function DriverDashboard({ user, onLogout, toast }) {
           <h3>Report Fault / Breakdown</h3>
           <div className="fault-type-grid">{FAULT_TYPES.map(type => <button key={type} className={`fault-type-btn ${faultType===type?'selected':''}`} onClick={() => setFaultType(type)}>{type}</button>)}</div>
           <div className="form-group"><label className="form-label">Describe the Issue</label><textarea className="form-textarea" placeholder="Describe the fault or breakdown in detail…" value={faultNote} onChange={e => setFaultNote(e.target.value)} /></div>
-          <button className="btn btn-orange btn-full" onClick={submitFault} disabled={!faultType||!faultNote.trim()||!selectedTaxi}>⚠ Report to Owner</button>
+          <button className="btn btn-orange btn-full" onClick={submitFault} disabled={!faultType||!faultNote.trim()||!selectedTaxi} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Report to Owner'}}></button>
         </div>
         {reports.length > 0 && (
           <div className="driver-status-card">
