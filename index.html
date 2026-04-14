@@ -782,7 +782,7 @@ function SetPasswordScreen({ onDone, toast }) {
 function SplashScreen({ onSelect }) {
   return (
     <div className="splash">
-      <div className="splash-logo"><div className="splash-logo-icon">🚕</div><h1>Track Transit</h1></div>
+      <div className="splash-logo"><div className="splash-logo-icon"><img>logo.png</img></div><h1>Track Transit</h1></div>
       <p className="splash-subtitle">Mukono Taxi Park Fleet Management</p>
       <div className="splash-cards">
         <div className="role-card" onClick={() => onSelect('owner')}><div className="role-card-icon">👔</div><h3>Fleet Owner</h3><p>Manage taxis, track live locations, view reports</p></div>
