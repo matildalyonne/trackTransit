@@ -1722,14 +1722,21 @@ function DriverDashboard({ user, onLogout, toast }) {
           <div className="trips-today-actions"><button className="btn btn-green btn-full" onClick={logTrip} disabled={!selectedTaxi}>+ Log Trip</button></div>
         </div>
         <div className="driver-status-card">
-          <h3>GPS Location</h3>
-          <div className="status-indicator"><div className={`status-dot ${tracking?'active':'inactive'}`}></div><span style={{fontSize:'0.875rem',fontWeight:600,color:tracking?'var(--green)':'var(--gray-500)'}}>{tracking?'Sharing location with owner':'Not tracking'}</span></div>
-          {location && <div className="gps-info" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + ' ' + location.lat.toFixed(5) + ','}}>< {location.lng.toFixed(5)} ±{location.acc}m accuracy</div>}
-          {locationError && <div className="alert alert-error" style={{marginTop:8,marginBottom:0}}>{locationError}</div>}
-          <div style={{display:'flex',gap:8,marginTop:12}}>
-            {!tracking ? <button className="btn btn-green btn-full" onClick={startTracking} disabled={!selectedTaxi} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M2 12 C2 6.48 6.48 2 12 2"/><path d="M22 12 C22 17.52 17.52 22 12 22"/><path d="M5.64 5.64 A9 9 0 0 0 5.64 18.36"/><path d="M18.36 18.36 A9 9 0 0 0 18.36 5.64"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg> Start GPS Tracking'}}></button> : <button className="btn btn-danger btn-full" onClick={stopTracking} dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><rect x="3" y="3" width="18" height="18" rx="2" fill="white" stroke="none"/></svg> Stop Tracking'}}></button>}
+          <h3>Current Shift</h3>
+          <div className="form-group">
+            <label className="form-label">Taxi You're Driving</label>
+            <select className="form-select" value={selectedTaxi} onChange={e => { setSelectedTaxi(e.target.value); setShiftSaved(false); }}>
+              <option value="">Select taxi…</option>
+              {taxis.map(t => <option key={t.id} value={t.id}>{t.plate}{t.route ? ` — ${t.route}` : ''}</option>)}
+            </select>
           </div>
-          {!selectedTaxi && <p style={{fontSize:'0.75rem',color:'var(--gray-400)',marginTop:8,textAlign:'center'}}>Select a taxi above to enable tracking</p>}
+          <div className="form-group" style={{marginBottom:12}}>
+            <label className="form-label">Conductor</label>
+            <input className="form-input" placeholder="Conductor's name" value={conductor} onChange={e => { setConductor(e.target.value); setShiftSaved(false); }} />
+          </div>
+          <button className={`btn btn-full ${shiftSaved ? 'btn-green' : 'btn-primary'}`} onClick={saveShift} disabled={!selectedTaxi}>
+            {shiftSaved ? '✓ Shift Saved' : 'Save Shift Details'}
+          </button>
         </div>
         <div className="fault-form">
           <h3>Report Fault / Breakdown</h3>
