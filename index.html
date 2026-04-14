@@ -782,11 +782,34 @@ function SetPasswordScreen({ onDone, toast }) {
 function SplashScreen({ onSelect }) {
   return (
     <div className="splash">
-      <div className="splash-logo"><div className="splash-logo-icon"><img>logo.png</img></div><h1>Track Transit</h1></div>
+      <div className="splash-logo">
+        <div className="splash-logo-icon">
+          {/* Main Logo Image */}
+          <img src="https://www.thiings.co/_next/image?url=https%3A%2F%2Flftz25oez4aqbxpq.public.blob.vercel-storage.com%2Fimage-NfgvOBembqNs9sIE5QDAQMkAn7lrds.png&w=500&q=75" alt="Track Transit Logo" />
+        </div>
+        <h1>Track Transit</h1>
+      </div>
+      
       <p className="splash-subtitle">Mukono Taxi Park Fleet Management</p>
+      
       <div className="splash-cards">
-        <div className="role-card" onClick={() => onSelect('owner')}><div className="role-card-icon">👔</div><h3>Fleet Owner</h3><p>Manage taxis, track live locations, view reports</p></div>
-        <div className="role-card" onClick={() => onSelect('driver')}><div className="role-card-icon">🚗</div><h3>Driver</h3><p>Start your shift, report faults, log trips</p></div>
+        {/* Owner Card */}
+        <div className="role-card" onClick={() => onSelect('owner')}>
+          <div className="role-card-icon">
+            <img src="https://cdn-icons-png.flaticon.com/128/12724/12724606.png" alt="Owner" />
+          </div>
+          <h3>Fleet Owner</h3>
+          <p>Manage taxis, track live locations, view reports</p>
+        </div>
+
+        {/* Driver Card */}
+        <div className="role-card" onClick={() => onSelect('driver')}>
+          <div className="role-card-icon">
+            <img src="https://cdn-icons-png.flaticon.com/128/5283/5283024.png" alt="Driver" />
+          </div>
+          <h3>Driver</h3>
+          <p>Start your shift, report faults, log trips</p>
+        </div>
       </div>
     </div>
   );
@@ -822,7 +845,8 @@ function OwnerLogin({ onBack, onLogin, toast }) {
       <div className="login-right">
         <button className="login-back" onClick={onBack}>← Back</button>
         <div className="login-card">
-          <div className="login-card-header"><div className="login-role-badge">👔 Fleet Owner</div><h2>Owner Sign In</h2><p>Access your fleet dashboard</p></div>
+          <div className="login-card-header"><div className="login-role-badge"><img src="https://cdn-icons-png.flaticon.com/128/12724/12724606.png" alt="Owner" />
+ Fleet Owner</div><h2>Owner Sign In</h2><p>Access your fleet dashboard</p></div>
           {error && <div className="alert alert-error">{error}</div>}
           <div className="form-group"><label className="form-label">Email Address</label><input className="form-input" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSubmit()} /></div>
           <div className="form-group"><label className="form-label">Password</label><input className="form-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSubmit()} /></div>
@@ -880,7 +904,7 @@ function DriverLogin({ onBack, onLogin, toast }) {
       <div className="login-right">
         <button className="login-back" onClick={step === 2 ? () => { setStep(1); setOtp(''); setError(''); } : onBack}>← Back</button>
         <div className="login-card">
-          <div className="login-card-header"><div className="login-role-badge">🚗 Driver</div><h2>{step === 1 ? 'Driver Sign In' : 'Verify OTP'}</h2><p>{step === 1 ? 'Enter your credentials to continue' : "Enter the OTP shown on the owner's dashboard"}</p></div>
+          <div className="login-card-header"><div className="login-role-badge"><img src="https://cdn-icons-png.flaticon.com/128/5283/5283024.png" alt="Driver" /> Driver</div><h2>{step === 1 ? 'Driver Sign In' : 'Verify OTP'}</h2><p>{step === 1 ? 'Enter your credentials to continue' : "Enter the OTP shown on the owner's dashboard"}</p></div>
           {error && <div className="alert alert-error">{error}</div>}
           {step === 1 ? (
             <>
@@ -1022,8 +1046,8 @@ function PaymentModal({ amount, ownerId, ownerEmail, ownerName, onClose, onSucce
   const pollRef = useRef(null);
 
   const providers = [
-    { id: 'mtn', icon: '<img>https://images.seeklogo.com/logo-png/55/1/airtel-money-uganda-logo-png_seeklogo-556391.png</img>', name: 'MTN MoMo', network: 'MTN Uganda' },
-    { id: 'airtel', icon: '📡', name: 'Airtel Money', network: 'Airtel Uganda' },
+    { id: 'mtn', icon: '<img src="https://images.seeklogo.com/logo-png/55/1/mtn-momo-mobile-money-uganda-logo-png_seeklogo-556395.png" alt="Driver" />', name: 'MTN MoMo', network: 'MTN Uganda' },
+    { id: 'airtel', icon: '<img src=https://images.seeklogo.com/logo-png/55/1/airtel-money-uganda-logo-png_seeklogo-556391.png" />', name: 'Airtel Money', network: 'Airtel Uganda' },
   ];
 
   const initiatePayment = async () => {
@@ -1120,7 +1144,7 @@ function PaymentModal({ amount, ownerId, ownerEmail, ownerName, onClose, onSucce
 
         {step === 'pending' && (
           <div className="payment-pending">
-            <div className="payment-pending-icon">📲</div>
+            <div className="payment-pending-icon"><img src="https://cdn-icons-png.flaticon.com/128/17719/17719584.png" /></div>
             <h3>Check Your Phone</h3>
             <p>A payment prompt has been sent to <strong>{phone}</strong>.<br/>Enter your Mobile Money PIN to confirm the payment.<br/><br/>This screen will update automatically.</p>
             <div style={{marginTop:20}}><div className="spinner" style={{margin:'0 auto'}}></div></div>
@@ -1129,7 +1153,7 @@ function PaymentModal({ amount, ownerId, ownerEmail, ownerName, onClose, onSucce
 
         {step === 'success' && (
           <div className="payment-success">
-            <div className="payment-success-icon">✅</div>
+            <div className="payment-success-icon"><img src="https://cdn-icons-png.flaticon.com/128/14090/14090371.png" /></div>
             <h3 style={{fontFamily:'Syne',fontWeight:800,marginBottom:6}}>Payment Successful!</h3>
             <p style={{color:'var(--gray-500)',fontSize:'0.875rem'}}>Your subscription has been activated. You can now continue using all features.</p>
           </div>
@@ -1190,25 +1214,25 @@ function BillingPage({ user, taxiCount, driverCount, hasPaidThisMonth, onPayment
       {/* Pricing cards */}
       <div className="plan-cards">
         <div className="plan-card">
-          <div className="plan-card-icon">🚕</div>
+          <div className="plan-card-icon"><img src="https://cdn-icons-png.flaticon.com/128/2508/2508735.png" alt="Driver" /></div>
           <h4>First Taxi</h4>
           <div className="plan-price free">Free</div>
           <p>Your first taxi is always included at no charge.</p>
         </div>
         <div className="plan-card">
-          <div className="plan-card-icon">👤</div>
+          <div className="plan-card-icon"><img src="https://cdn-icons-png.flaticon.com/128/5283/5283024.png" alt="Driver" /></div>
           <h4>First 2 Drivers</h4>
           <div className="plan-price free">Free</div>
           <p>Your first two drivers are always included.</p>
         </div>
         <div className={`plan-card ${bill.extraTaxis > 0 ? 'highlight' : ''}`}>
-          <div className="plan-card-icon">➕</div>
+          <div className="plan-card-icon"><img src="https://cdn-icons-png.flaticon.com/128/55/55177.png" alt="Driver" /></div>
           <h4>Extra Taxis</h4>
           <div className="plan-price">{fmtUGX(PRICE_PER_EXTRA_TAXI)}</div>
           <p>Per additional taxi, per month.</p>
         </div>
         <div className={`plan-card ${bill.extraDrivers > 0 ? 'highlight' : ''}`}>
-          <div className="plan-card-icon">👥</div>
+          <div className="plan-card-icon"><img src="https://cdn-icons-png.flaticon.com/128/5283/5283024.png" alt="Driver" /></div>
           <h4>Extra Drivers</h4>
           <div className="plan-price">{fmtUGX(PRICE_PER_EXTRA_DRIVER)}</div>
           <p>Per additional driver, per month.</p>
@@ -1281,10 +1305,10 @@ function BillingPage({ user, taxiCount, driverCount, hasPaidThisMonth, onPayment
         <div className="table-card-header"><h3>Payment History</h3></div>
         {loadingHistory ? <div className="loading"><div className="spinner"></div></div>
           : payments.length === 0
-            ? <div className="empty-state"><div className="empty-state-icon">📋</div><p>No payments yet.</p></div>
+            ? <div className="empty-state"><div className="empty-state-icon"><img src="https://cdn-icons-png.flaticon.com/128/7939/7939869.png" /></div><p>No payments yet.</p></div>
             : payments.map(p => (
               <div key={p.id} className="history-item">
-                <div className={`history-icon ${p.status}`}>{p.status==='successful'?'✅':p.status==='pending'?'⏳':'❌'}</div>
+                <div className={`history-icon ${p.status}`}>{p.status==='successful'?'<img src="https://cdn-icons-png.flaticon.com/128/14090/14090371.png" />':p.status==='pending'?'<img src="https://cdn-icons-png.flaticon.com/128/17719/17719584.png" />':'<img src="https://cdn-icons-png.flaticon.com/128/399/399274.png" />'}</div>
                 <div className="history-info">
                   <div className="history-info-title">{p.description || 'Monthly subscription'}</div>
                   <div className="history-info-meta">{p.provider} · {p.phone} · {new Date(p.created_at).toLocaleDateString()}</div>
@@ -1315,7 +1339,7 @@ function BillingGate({ type, onGoToBilling }) {
   const isDriver = type === 'driver';
   return (
     <div className="billing-gate">
-      <div className="billing-gate-icon">🔒</div>
+      <div className="billing-gate-icon"><img src="https://cdn-icons-png.flaticon.com/128/641/641693.png" /></div>
       <div>
         <h4>Subscription required to add more {isDriver ? 'drivers' : 'taxis'}</h4>
         <p>
@@ -1432,18 +1456,19 @@ function OwnerDashboard({ user, onLogout, toast }) {
   };
 
   const navItems = [
-    ['map',         '🗺️', 'Live Map'],
-    ['taxis',       '🚕', 'My Taxis'],
-    ['drivers',     '👤', 'Drivers'],
-    ['maintenance', '🔧', 'Maintenance'],
-    ['otps',        '🔑', 'Pending OTPs'],
-    ['billing',     '💳', 'Billing'],
+    ['map',         '<img src="https://cdn-icons-png.flaticon.com/128/5155/5155270.png" />', 'Live Map'],
+    ['taxis',       '<img src="https://cdn-icons-png.flaticon.com/128/5411/5411418.png" />', 'My Taxis'],
+    ['drivers',     '<img src="https://cdn-icons-png.flaticon.com/128/5283/5283024.png" alt="Driver" />', 'Drivers'],
+    ['maintenance', '<img src="https://cdn-icons-png.flaticon.com/128/1077/1077198.png" />', 'Maintenance'],
+    ['otps',        '<img src="https://cdn-icons-png.flaticon.com/128/159/159478.png" />', 'Pending OTPs'],
+    ['billing',     '<img src="https://cdn-icons-png.flaticon.com/128/4021/4021708.png" />', 'Billing'],
   ];
 
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="sidebar-logo"><div className="sidebar-logo-icon">🚕</div><span>Track Transit</span></div>
+        <div className="sidebar-logo"><div className="sidebar-logo-icon"><img src="https://www.thiings.co/_next/image?url=https%3A%2F%2Flftz25oez4aqbxpq.public.blob.vercel-storage.com%2Fimage-NfgvOBembqNs9sIE5QDAQMkAn7lrds.png&w=500&q=75" alt="Track Transit Logo" />
+</div><span>Track Transit</span></div>
         <nav className="sidebar-nav">
           <div className="sidebar-section-label">Dashboard</div>
           {navItems.map(([id, icon, label]) => (
