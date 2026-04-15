@@ -17,8 +17,9 @@
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <!-- Fonts: Agrandir (Fontshare) + Open Sauce One (Google Fonts) -->
+  <link href="https://api.fontshare.com/v2/css?f[]=agrandir@400,500,700,800,900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sauce+One:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
   <style>
     :root {
@@ -52,14 +53,14 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Open Sauce One', sans-serif;
       background: var(--gray-50);
       color: var(--gray-900);
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
+    h1, h2, h3, h4 { font-family: 'Agrandir', sans-serif; }
 
     /* ── SPLASH / LOGIN ── */
     .splash {
@@ -68,7 +69,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(145deg, #0D47A1 0%, #1565C0 40%, #1976D2 70%, #0277BD 100%);
+      background: url('/background.png') center center / cover no-repeat;
       padding: 24px;
       position: relative;
       overflow: hidden;
@@ -77,7 +78,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      background: rgba(0, 0, 0, 0.70);
     }
     .splash-logo {
       display: flex;
@@ -133,13 +134,21 @@
     .login-page {
       min-height: 100vh;
       display: flex;
-      background: linear-gradient(145deg, #0D47A1 0%, #1565C0 60%, #1976D2 100%);
+      background: url('/background.png') center center / cover no-repeat;
+      position: relative;
     }
-    .login-left {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; padding: 48px;
-      display: none;
+    .login-page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.70);
+      z-index: 0;
     }
+    .login-right {
+      position: relative;
+      z-index: 1;
+    }
+    .login-left { display: none; }
     .login-right {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -182,7 +191,7 @@
       width: 100%; padding: 11px 14px;
       border: 1.5px solid var(--gray-200);
       border-radius: var(--radius-sm);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Open Sauce One', sans-serif;
       font-size: 0.9rem; color: var(--gray-900);
       transition: border-color 0.2s, box-shadow 0.2s;
       background: white; outline: none;
@@ -193,14 +202,14 @@
     }
     .form-input.otp {
       text-align: center; font-size: 1.4rem; font-weight: 700;
-      letter-spacing: 8px; font-family: 'Syne', sans-serif;
+      letter-spacing: 8px; font-family: 'Agrandir', sans-serif;
     }
 
     /* ── BUTTONS ── */
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       padding: 11px 20px; border-radius: var(--radius-sm);
-      font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600;
+      font-family: 'Open Sauce One', sans-serif; font-size: 0.9rem; font-weight: 600;
       cursor: pointer; border: none; transition: all 0.2s; text-decoration: none;
     }
     .btn-primary {
@@ -248,7 +257,7 @@
       font-size: 18px;
     }
     .sidebar-logo span {
-      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-family: 'Agrandir', sans-serif; font-weight: 800;
       font-size: 1rem; color: white;
     }
     .sidebar-section-label {
@@ -304,7 +313,7 @@
       display: flex; align-items: center; justify-content: space-between;
       position: sticky; top: 0; z-index: 50;
     }
-    .topbar-title { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--gray-900); }
+    .topbar-title { font-family: 'Agrandir', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--gray-900); }
     .topbar-right { display: flex; align-items: center; gap: 10px; }
     .topbar-badge {
       display: inline-flex; align-items: center; gap: 5px;
@@ -339,7 +348,7 @@
     .stat-icon-green { background: var(--green-pale); }
     .stat-icon-orange { background: var(--orange-pale); }
     .stat-icon-red { background: #FFEBEE; }
-    .stat-value { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--gray-900); }
+    .stat-value { font-family: 'Agrandir', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--gray-900); }
     .stat-label { color: var(--gray-500); font-size: 0.78rem; font-weight: 500; margin-top: 2px; }
 
     /* ── MAP ── */
@@ -393,7 +402,7 @@
     .table-search {
       padding: 7px 12px; border: 1.5px solid var(--gray-200);
       border-radius: var(--radius-sm); font-size: 0.85rem;
-      outline: none; width: 200px; font-family: 'DM Sans', sans-serif;
+      outline: none; width: 200px; font-family: 'Open Sauce One', sans-serif;
     }
     .table-search:focus { border-color: var(--blue-light); box-shadow: 0 0 0 3px rgba(25,118,210,0.1); }
     table { width: 100%; border-collapse: collapse; }
@@ -452,7 +461,7 @@
       display: flex; align-items: center; justify-content: space-between;
       position: sticky; top: 0; z-index: 50;
     }
-    .driver-topbar h2 { font-family: 'Syne', sans-serif; color: white; font-size: 1rem; font-weight: 700; }
+    .driver-topbar h2 { font-family: 'Agrandir', sans-serif; color: white; font-size: 1rem; font-weight: 700; }
     .driver-content { padding: 20px 16px; }
     .driver-status-card {
       background: white; border-radius: var(--radius);
@@ -478,7 +487,7 @@
       padding: 10px 8px; border-radius: var(--radius-sm);
       border: 1.5px solid var(--gray-200); background: white;
       cursor: pointer; font-size: 0.78rem; font-weight: 600;
-      text-align: center; transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+      text-align: center; transition: all 0.15s; font-family: 'Open Sauce One', sans-serif;
       color: var(--gray-700);
     }
     .fault-type-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-pale); }
@@ -486,7 +495,7 @@
     .form-textarea {
       width: 100%; padding: 10px 12px; min-height: 80px;
       border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm);
-      font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+      font-family: 'Open Sauce One', sans-serif; font-size: 0.875rem;
       resize: vertical; outline: none; transition: border-color 0.2s;
     }
     .form-textarea:focus { border-color: var(--blue-light); box-shadow: 0 0 0 3px rgba(25,118,210,0.1); }
@@ -496,7 +505,7 @@
       color: white; text-align: center;
     }
     .trip-counter-card h3 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.8; margin-bottom: 6px; }
-    .trip-count-display { font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 800; line-height: 1; }
+    .trip-count-display { font-family: 'Agrandir', sans-serif; font-size: 3rem; font-weight: 800; line-height: 1; }
     .trip-count-label { font-size: 0.78rem; opacity: 0.7; margin-top: 4px; }
     .trips-today-actions { display: flex; gap: 10px; margin-top: 14px; }
     .maintenance-list { }
@@ -550,13 +559,53 @@
     .spinner { width: 32px; height: 32px; border: 3px solid var(--gray-200); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Responsive */
+    /* ── HAMBURGER BUTTON ── */
+    .hamburger {
+      display: none;
+      align-items: center; justify-content: center;
+      width: 38px; height: 38px;
+      border: none; background: none; cursor: pointer;
+      border-radius: var(--radius-sm);
+      color: var(--gray-700);
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .hamburger:hover { background: var(--gray-100); }
+
+    /* ── SIDEBAR OVERLAY (mobile) ── */
+    .sidebar-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+      animation: fadeIn 0.2s ease;
+    }
+    .sidebar-overlay.visible { display: block; }
+
+    /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-      .sidebar { transform: translateX(-100%); }
-      .sidebar.open { transform: translateX(0); }
+      .hamburger { display: flex; }
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 200;
+        box-shadow: none;
+      }
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 4px 0 24px rgba(0,0,0,0.35);
+      }
+
       .main-content { margin-left: 0; }
       .page { padding: 16px; }
       .stats-row { grid-template-columns: repeat(2, 1fr); }
+
+      /* Push topbar title left to make room for hamburger */
+      .topbar { padding: 12px 16px; gap: 10px; }
+      .topbar-title { font-size: 1rem; }
+      .topbar-right { gap: 6px; flex-wrap: nowrap; }
+      .topbar-badge { font-size: 0.68rem; padding: 4px 7px; }
     }
 
     /* Config banner */
@@ -581,7 +630,7 @@
     }
     .billing-hero h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; }
     .billing-hero p { font-size: 0.85rem; opacity: 0.8; }
-    .billing-amount { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; margin: 10px 0 4px; }
+    .billing-amount { font-family: 'Agrandir', sans-serif; font-size: 2.2rem; font-weight: 800; margin: 10px 0 4px; }
     .billing-amount span { font-size: 1rem; opacity: 0.7; font-weight: 400; }
     .billing-due { font-size: 0.78rem; opacity: 0.7; }
     .billing-free-badge {
@@ -598,7 +647,7 @@
     .plan-card.highlight { border-color: var(--orange); background: var(--orange-pale); }
     .plan-card-icon { font-size: 1.6rem; margin-bottom: 8px; }
     .plan-card h4 { font-size: 0.85rem; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
-    .plan-card .plan-price { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--blue); }
+    .plan-card .plan-price { font-family: 'Agrandir', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--blue); }
     .plan-card .plan-price.free { color: var(--green); }
     .plan-card p { font-size: 0.75rem; color: var(--gray-500); margin-top: 3px; line-height: 1.4; }
     .billing-breakdown {
@@ -611,19 +660,19 @@
     .billing-line:last-child { border-bottom: none; }
     .billing-line-label { color: var(--gray-700); }
     .billing-line-label small { color: var(--gray-400); font-size: 0.75rem; display: block; }
-    .billing-line-amount { font-weight: 700; color: var(--gray-900); font-family: 'Syne', sans-serif; }
+    .billing-line-amount { font-weight: 700; color: var(--gray-900); font-family: 'Agrandir', sans-serif; }
     .billing-line-amount.free { color: var(--green); }
     .billing-line-amount.charge { color: var(--orange); }
     .billing-total { background: var(--gray-50); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--gray-200); }
     .billing-total-label { font-weight: 700; font-size: 0.9rem; }
-    .billing-total-amount { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--blue); }
+    .billing-total-amount { font-family: 'Agrandir', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--blue); }
     .billing-total-amount.zero { color: var(--green); }
     .payment-modal-body { padding: 20px 24px; }
     .momo-providers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .momo-btn {
       padding: 14px 10px; border-radius: var(--radius-sm); border: 2px solid var(--gray-200);
       background: white; cursor: pointer; text-align: center; transition: all 0.15s;
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Open Sauce One', sans-serif;
     }
     .momo-btn:hover { border-color: var(--blue); background: var(--blue-pale); }
     .momo-btn.selected { border-color: var(--blue); background: var(--blue-pale); }
@@ -655,7 +704,7 @@
     .history-info { flex: 1; }
     .history-info-title { font-size: 0.875rem; font-weight: 600; color: var(--gray-900); }
     .history-info-meta { font-size: 0.75rem; color: var(--gray-400); margin-top: 1px; }
-    .history-amount { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.95rem; color: var(--gray-900); }
+    .history-amount { font-family: 'Agrandir', sans-serif; font-weight: 800; font-size: 0.95rem; color: var(--gray-900); }
   </style>
 </head>
 <body>
@@ -1086,7 +1135,7 @@ function PaymentModal({ amount, ownerId, ownerEmail, ownerName, onClose, onSucce
             <div className="payment-modal-body">
               <div style={{textAlign:'center',marginBottom:18}}>
                 <div style={{fontSize:'0.8rem',color:'var(--gray-500)',marginBottom:4}}>Amount due this month</div>
-                <div style={{fontFamily:'Syne',fontSize:'2rem',fontWeight:800,color:'var(--blue)'}}>{fmtUGX(amount)}</div>
+                <div style={{fontFamily:'Agrandir',fontSize:'2rem',fontWeight:800,color:'var(--blue)'}}>{fmtUGX(amount)}</div>
               </div>
               <div style={{marginBottom:14}}>
                 <label className="form-label">Select Mobile Money Provider</label>
@@ -1129,7 +1178,7 @@ function PaymentModal({ amount, ownerId, ownerEmail, ownerName, onClose, onSucce
         {step === 'success' && (
           <div className="payment-success">
             <div className="payment-success-icon" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'}} />
-            <h3 style={{fontFamily:'Syne',fontWeight:800,marginBottom:6}}>Payment Successful!</h3>
+            <h3 style={{fontFamily:'Agrandir',fontWeight:800,marginBottom:6}}>Payment Successful!</h3>
             <p style={{color:'var(--gray-500)',fontSize:'0.875rem'}}>Your subscription has been activated. You can now continue using all features.</p>
           </div>
         )}
@@ -1338,6 +1387,7 @@ function BillingGate({ type, onGoToBilling }) {
 // ── OWNER DASHBOARD ───────────────────────────────────────────────────────────
 function OwnerDashboard({ user, onLogout, toast }) {
   const [page, setPage] = useState('map');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [taxis, setTaxis] = useState([]);
   const [drivers, setDrivers] = useState([]);
   const [pendingOtps, setPendingOtps] = useState([]);
@@ -1449,12 +1499,12 @@ function OwnerDashboard({ user, onLogout, toast }) {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
         <div className="sidebar-logo"><div className="sidebar-logo-icon"><img src="/logo.png" alt="logo" style={{width:"24px",height:"24px",objectFit:"contain"}} /></div><span>Track Transit</span></div>
         <nav className="sidebar-nav">
           <div className="sidebar-section-label">Dashboard</div>
           {navItems.map(([id, icon, label]) => (
-            <button key={id} className={`sidebar-item ${page === id ? 'active' : ''}`} onClick={() => { setPage(id); if (id==='otps') loadPendingOtps(); if (id==='drivers') loadDrivers(); }}>
+            <button key={id} className={`sidebar-item ${page === id ? 'active' : ''}`} onClick={() => { setPage(id); setSidebarOpen(false); if (id==='otps') loadPendingOtps(); if (id==='drivers') loadDrivers(); }}>
               <span className="sidebar-icon" dangerouslySetInnerHTML={{__html: icon}} /> {label}
               {id === 'otps' && pendingOtps.length > 0 && <span style={{marginLeft:'auto',background:'var(--orange)',color:'white',borderRadius:'10px',padding:'1px 7px',fontSize:'0.7rem',fontWeight:700}}>{pendingOtps.length}</span>}
               {id === 'billing' && bill.total > 0 && !hasPaidThisMonth && <span style={{marginLeft:'auto',background:'#C62828',color:'white',borderRadius:'10px',padding:'1px 7px',fontSize:'0.7rem',fontWeight:700}}>Due</span>}
@@ -1469,11 +1519,18 @@ function OwnerDashboard({ user, onLogout, toast }) {
           <button className="btn btn-ghost btn-full btn-sm" onClick={onLogout}>Sign Out</button>
         </div>
       </aside>
+      {sidebarOpen && <div className="sidebar-overlay visible" onClick={() => setSidebarOpen(false)} />}
 
       <main className="main-content">
         <div className="topbar">
-          <div className="topbar-title">
-            {page==='map'&&'Live Fleet Map'}{page==='taxis'&&'My Taxis'}{page==='drivers'&&'Drivers'}{page==='maintenance'&&'Maintenance Reports'}{page==='otps'&&'Pending Driver OTPs'}{page==='billing'&&'Billing & Subscription'}
+          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+            <button className="hamburger" onClick={() => setSidebarOpen(o => !o)} aria-label="Toggle menu">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
+            <div className="topbar-title">
+              {page==='map'&&'Live Fleet Map'}{page==='taxis'&&'My Taxis'}{page==='drivers'&&'Drivers'}{page==='maintenance'&&'Maintenance Reports'}{page==='otps'&&'Pending Driver OTPs'}{page==='billing'&&'Billing & Subscription'}
           </div>
           <div className="topbar-right">
             {lastRefresh && <span style={{fontSize:'0.72rem',color:'var(--gray-400)',marginRight:6}} dangerouslySetInnerHTML={{__html: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>` + ' ' + lastRefresh.toLocaleTimeString()}} ></span>}
@@ -1481,6 +1538,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
             {breakdowns > 0 && <span className="topbar-badge badge-red" dangerouslySetInnerHTML={{__html: '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#C62828;margin-right:4px;"></span>' + breakdowns + ' Breakdown'}} />}
             {pendingOtps.length > 0 && <span className="topbar-badge badge-orange" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>' + pendingOtps.length + ' OTP'}} />}
             {bill.total > 0 && !hasPaidThisMonth && <span className="topbar-badge badge-red" dangerouslySetInnerHTML={{__html: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;" ><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>' + ' ' + fmtUGX(bill.total) + ' due'}} />}
+          </div>
           </div>
         </div>
 
@@ -1515,7 +1573,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
                   <tbody>
                     {filteredTaxis.map(taxi => (
                       <tr key={taxi.id}>
-                        <td><strong style={{fontFamily:'Syne',fontSize:'0.9rem'}}>{taxi.plate}</strong></td>
+                        <td><strong style={{fontFamily:'Agrandir',fontSize:'0.9rem'}}>{taxi.plate}</strong></td>
                         <td>{taxi.route||'—'}</td>
                         <td>{taxi.driver||<span style={{color:'var(--gray-400)'}}>—</span>}</td>
                         <td>{taxi.conductor||<span style={{color:'var(--gray-400)'}}>—</span>}</td>
@@ -1572,7 +1630,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
                   : <table><thead><tr><th>Taxi</th><th>Issue Type</th><th>Notes</th><th>Reported</th><th>Status</th><th>Action</th></tr></thead><tbody>
                       {taxis.flatMap(taxi=>(taxi.maintenance||[]).map(m=>(
                         <tr key={m.id}>
-                          <td><strong style={{fontFamily:'Syne'}}>{taxi.plate}</strong><br/><small style={{color:'var(--gray-400)'}}>{taxi.route}</small></td>
+                          <td><strong style={{fontFamily:'Agrandir'}}>{taxi.plate}</strong><br/><small style={{color:'var(--gray-400)'}}>{taxi.route}</small></td>
                           <td><span className="topbar-badge badge-orange">{m.type}</span></td>
                           <td style={{maxWidth:200}}>{m.note}</td>
                           <td style={{color:'var(--gray-500)',fontSize:'0.8rem'}}>{m.reported_at?new Date(m.reported_at).toLocaleString():'—'}</td>
@@ -1596,7 +1654,7 @@ function OwnerDashboard({ user, onLogout, toast }) {
                       <tr key={otp.id}>
                         <td><strong>{otp.drivers?.name||'—'}</strong></td>
                         <td style={{color:'var(--gray-500)'}}>{otp.drivers?.username||'—'}</td>
-                        <td><span style={{fontFamily:'Syne',fontSize:'1.4rem',fontWeight:800,letterSpacing:'6px',color:'var(--blue)'}}>{otp.otp}</span></td>
+                        <td><span style={{fontFamily:'Agrandir',fontSize:'1.4rem',fontWeight:800,letterSpacing:'6px',color:'var(--blue)'}}>{otp.otp}</span></td>
                         <td style={{fontSize:'0.8rem',color:'var(--gray-500)'}}>{new Date(otp.expires_at).toLocaleTimeString()}</td>
                         <td><button className="btn btn-ghost btn-sm" onClick={async()=>{ await db.from('otp_requests').update({used:true}).eq('id',otp.id); loadPendingOtps(); toast.show('OTP dismissed','info'); }}>Dismiss</button></td>
                       </tr>
@@ -1722,21 +1780,20 @@ function DriverDashboard({ user, onLogout, toast }) {
           <div className="trips-today-actions"><button className="btn btn-green btn-full" onClick={logTrip} disabled={!selectedTaxi}>+ Log Trip</button></div>
         </div>
         <div className="driver-status-card">
-          <h3>Current Shift</h3>
-          <div className="form-group">
-            <label className="form-label">Taxi You're Driving</label>
-            <select className="form-select" value={selectedTaxi} onChange={e => { setSelectedTaxi(e.target.value); setShiftSaved(false); }}>
-              <option value="">Select taxi…</option>
-              {taxis.map(t => <option key={t.id} value={t.id}>{t.plate}{t.route ? ` — ${t.route}` : ''}</option>)}
-            </select>
+          <h3>GPS Location</h3>
+          <div className="status-indicator">
+            <div className={`status-dot ${tracking ? 'active' : 'inactive'}`}></div>
+            <span style={{fontSize:'0.875rem',fontWeight:600,color: tracking ? 'var(--green)' : 'var(--gray-500)'}}>{tracking ? 'Sharing location with owner' : 'Not tracking'}</span>
           </div>
-          <div className="form-group" style={{marginBottom:12}}>
-            <label className="form-label">Conductor</label>
-            <input className="form-input" placeholder="Conductor's name" value={conductor} onChange={e => { setConductor(e.target.value); setShiftSaved(false); }} />
+          {location && <div className="gps-info">📍 {location.lat.toFixed(5)}, {location.lng.toFixed(5)} · ±{location.acc}m accuracy</div>}
+          {locationError && <div className="alert alert-error" style={{marginTop:8,marginBottom:0}}>{locationError}</div>}
+          <div style={{display:'flex',gap:8,marginTop:12}}>
+            {!tracking
+              ? <button className="btn btn-green btn-full" onClick={startTracking} disabled={!selectedTaxi}>📡 Start GPS Tracking</button>
+              : <button className="btn btn-danger btn-full" onClick={stopTracking}>⏹ Stop Tracking</button>
+            }
           </div>
-          <button className={`btn btn-full ${shiftSaved ? 'btn-green' : 'btn-primary'}`} onClick={saveShift} disabled={!selectedTaxi}>
-            {shiftSaved ? '✓ Shift Saved' : 'Save Shift Details'}
-          </button>
+          {!selectedTaxi && <p style={{fontSize:'0.75rem',color:'var(--gray-400)',marginTop:8,textAlign:'center'}}>Select a taxi above to enable tracking</p>}
         </div>
         <div className="fault-form">
           <h3>Report Fault / Breakdown</h3>
